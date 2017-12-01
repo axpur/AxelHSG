@@ -44,7 +44,7 @@ class SchellingAgent(Agent):
         # Determine the location
         self.loc = self.y*3+self.x
 
-        similar = -1  # How many agents around me are similar to me. Initially -1. Done for each agent at every step.
+        similar = 0  # How many agents around me are similar to me. Initially -1. Done for each agent at every step.
         for neighbor in self.model.grid.neighbor_iter(self.pos):
             if neighbor.type == self.type:
                 similar += 1
@@ -141,7 +141,7 @@ class SchellingModel_vote(Model):
 
             # For each center find all citizens living in the location and
             # add to the election result storer based on the type of the agent
-            for people in self.grid.neighbor_iter(i):
+            for people in self.grid.get_neighbors(pos = i, moore = True, include_center = True, radius = 5):
                 if people.type == 0:
                     blue += 1
                 else:
@@ -151,9 +151,9 @@ class SchellingModel_vote(Model):
             # Should be more if commands, to separte what to do when it is
             # 50-50
             if blue >= red:
-                self.elections.append(1)
-            else:
                 self.elections.append(0)
+            else:
+                self.elections.append(1)
 
         self.schedule.step()
         self.datacollector.collect(self)
