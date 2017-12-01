@@ -1,0 +1,157 @@
+%`preamble' precedes the main text
+\documentclass[12pt, a4paper]{article}
+
+%some important packages
+\usepackage[T1]{fontenc}					%package to set font encoding
+\usepackage[latin1]{inputenc}				%package to set input encoding
+
+%\usepackage[ngerman]{babel} 				%option for paper in german
+\usepackage{graphicx} 						%package to include graphics
+\usepackage{setspace} 						%package to set space between lines
+\usepackage{lscape} 							%package to rotate pages
+\usepackage{lipsum} 							%package for random text, delete \lipsum[1]-command when you write your own text
+\usepackage{booktabs} 						%package for nice tables
+\usepackage{amsmath,amsfonts,amssymb} 	%packages for LaTeX that provides various features to facilitate writing math 									
+												%formulas and to improve the typographical quality of their output 
+\usepackage{array}							%package for extending array and tabular environments
+\usepackage{textcomp}						%package support of the text companion fonts
+\usepackage{exscale} 							%package for nice summation sign 
+\usepackage{tabularx} 						%package for column width and linebreaks in table cells
+\usepackage{natbib}							%package for bibliography
+\usepackage{ragged2e} 						%package provides less extreme raggedness than the standard LaTeX commands \flushleft and \flushright
+\usepackage{multirow}           					%package to combine cells in tables
+\usepackage{eurosym} 						%package to get eurosymbol per \euro
+\usepackage{verbatim}						% package for verbatim evironment
+\usepackage{float}							%package to define position of tables and figures
+
+%adjustment of page parameters
+\usepackage[left=3cm, right=2cm, top=2.5cm, bottom=2.5cm]{geometry}
+\renewcommand{\baselinestretch}{1.5} 		%line spacing is set to 1.5
+\setlength{\footnotesep}{10.0pt}				%space between footnote and text
+
+
+%title
+\title{{\Large Do voting systems affect segregation\footnote{This paper was written as a term paper in the course XYZ at the Chair of Economics VI: Empirical Economics, Prof. Dr. Mario Larch, University of Bayreuth.}}\\
+\vspace{3mm}{\Large Term Paper, Software Engineering for Economists}%options: BA Thesis, MA Thesis etc.
+}
+
+%author
+\author{Julia Baumann\footnote{4th semester, BA Economics. Student No.: 2323235. Address: Joseph-Schumpeter-Allee 42, 95444 Bayreuth. Tel.: +31 415 926 535 897. Email: market.frictions@uni-bayreuth.de.}\\ Tadas Gedminas\\Axel Purwin}
+\date{Autumn 2017}
+%beginning of the main text
+\begin{document}
+
+\maketitle \thispagestyle{empty}
+
+%abstract
+\begin{abstract}
+
+%temporary set single space
+\setlength{\baselineskip}{10.5pt} 
+
+\vspace{0.5cm} 
+\noindent You should put your abstract here. 
+\vspace{0.5cm} 
+
+{\normalsize \noindent \emph{JEL-Codes}:  Code1, Code2, Code3.\\ % for more information on JEL codes, consult: http://www.aeaweb.org/jel/jel_class_system.php
+\emph{Keywords}: Keyword1, Keyword2, Keyword3.} % put some keywords that describe your work here
+\end{abstract}
+
+\newpage
+
+%you can comment the following three lines if you write a term paper
+\thispagestyle{empty}
+\tableofcontents
+\newpage
+
+\newpage
+\thispagestyle{empty}
+\listoftables
+
+
+\newpage
+\thispagestyle{empty}
+\listoffigures
+
+
+\newpage
+
+
+\setcounter{page}{1}%set page number to one
+
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+%main content
+
+\section{\label{sec_intro}Introduction}
+
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+
+\section{The Model}\label{sec_model}
+
+
+
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+
+\section{\label{sec_strat}Estimation Strategy}
+
+
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+
+\section{\label{sec_data}Data}
+
+
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+
+\section{\label{sec_res}Results}
+
+
+
+
+
+
+
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+
+\section{\label{sec_conc}Conclusion}
+
+
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+
+%reference section with econometrica style. there are two options. the first is to use a bibtex-file. this can be very helpful in a paper with many reference. the second is to write down the referenes by hand. 
+
+\newpage
+
+%Version 1
+%\bibliographystyle{econometrica}
+%\bibliography{bibliography}
+
+%Version 2
+\section*{\label{sec_ref}References}
+ANGRIST, J. D., AND J. PISCHKE (2009): \textit{Mostly Harmless Econometrics: An Empiricist's Companion}. Princeton University Press.
+    
+\noindent KENNEDY, P. (2005): ``Oh No! I Got the Wrong Sign! What Should I Do?,'' \textit{Journal of Economic Education}, 36, 77--92.
+    
+\noindent LEAMER, E. E. (1975): ```Explaining Your Results' as Access-Biased Memory,'' \textit{Journal of the American Statistical Association}, 70, 88--93.
+    
+\noindent LEAMER, E. E. (1983): ``Let's Take the Con Out of Econometrics,'' \textit{American Economic Review}, 73, 31--43.
+    
+\noindent SALA-I-MARTIN, X. X. (1997): ``I Just Ran Two Million Regressions,'' \textit{American Economic Review}, 87, 178--183.
+
+\noindent WOOLDRIDGE, J. M. (2008): \textit{Introductory Econometrics: A Modern Approach}. South-Western Cengage Learning.
+
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+
+
+
+\end{document}
+%the  end 
