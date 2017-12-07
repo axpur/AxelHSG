@@ -66,16 +66,18 @@ class SchellingModel_vote(Model):
     Model class for the Schelling segregation model.
     '''
 
-    def __init__(self, height, width, density, minority_pc, homophily):
+    def __init__(self, height, width, density, party_1, party_2, party_3, homophily):
         '''
         '''
         # Setting up the Model
         self.height = height
         self.width = width
         self.density = density  # percentage (empty houses)
-        self.minority_pc = minority_pc  # percentage minority in the city
+        self.party_1 = party_1  # percentage minority in the city
+        self.party_2 = party_2
+        self.party_3 = party_3
         self.homophily = homophily  # number of similar minded person that you want around you
-
+        global random_number
         # Setting up the AGM simulation
         self.schedule = RandomActivation(self)
 
@@ -114,11 +116,30 @@ class SchellingModel_vote(Model):
 
             # Second if statement: take a random number between 0 and 1
             # and assign the agent type based on the condition
+
+            random_number = random.random()
             if random.random() < self.density:
-                if random.random() < self.minority_pc:
+#                if random_number < self.party_1:
+#                    agent_type = 1
+#                if random_number < (self.party_2+self.party_1) and random_number > self.party_1:
+#                    agent_type = 2
+#                if random_number < (self.party_1+self.party_2+self.party_3) and random_number > (self.party_1+self.party_2):
+#                    agent_type = 3
+#                else:
+#                    agent_type = 0
+
+                if random_number < self.party_1:
                     agent_type = 1
                 else:
-                    agent_type = 0
+                    if random_number < (self.party_1+self.party_2):
+                        agent_type = 2
+                    else:
+                        if random_number < (self.party_1+self.party_2+self.party_3):
+                            agent_type = 3
+                        else:
+                            agent_type = 0
+
+
 
                 # Refer to the above function related to Agent attributes
                 agent = SchellingAgent((x, y), self, agent_type)
@@ -138,22 +159,29 @@ class SchellingModel_vote(Model):
         for i in self.center:
             blue = 0
             red = 0
+            pink = 0
+            lightblue = 0
 
             # For each center find all citizens living in the location and
             # add to the election result storer based on the type of the agent
             for people in self.grid.get_neighbors(pos = i, moore = True, include_center = True, radius = 5):
-                if people.type == 0:
-                    blue += 1
-                else:
+                if people.type == 1:
                     red += 1
+                if people.type == 2:
+                    pink += 1
+                if people.type == 3:
+                    lightblue += 1
+                else:
+                    blue += 1
 
             # Depending on the election results assign the value to self.elections
             # Should be more if commands, to separte what to do when it is
             # 50-50
-            if blue >= red:
+            if blue+lightblue > red+pink:
                 self.elections.append(0)
-            else:
+            if red+pink > blue+lightblue:
                 self.elections.append(1)
+
 
         self.schedule.step()
         self.datacollector.collect(self)
