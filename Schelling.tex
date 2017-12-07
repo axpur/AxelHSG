@@ -23,7 +23,7 @@
 \usepackage{eurosym} 						%package to get eurosymbol per \euro
 \usepackage{verbatim}						% package for verbatim evironment
 \usepackage{float}							%package to define position of tables and figures
-
+\usepackage{color}
 %adjustment of page parameters
 \usepackage[left=3cm, right=2cm, top=2.5cm, bottom=2.5cm]{geometry}
 \renewcommand{\baselinestretch}{1.5} 		%line spacing is set to 1.5
@@ -31,7 +31,7 @@
 
 
 %title
-\title{{\Large Do voting systems affect segregation? - An agent-based modelling approach\footnote{This paper was written as a term paper in the course XYZ at the Chair of Economics VI: Empirical Economics, Prof. Dr. Marionne Larch, University of Bayreuth.}}\\
+\title{{\Large Do voting systems affect segregation\footnote{This paper was written as a term paper in the course XYZ at the Chair of Economics VI: Empirical Economics, Prof. Dr. Mario Larch, University of Bayreuth.}}\\
 \vspace{3mm}{\Large Term Paper, Software Engineering for Economists}%options: BA Thesis, MA Thesis etc.
 }
 
@@ -87,12 +87,27 @@
 
 \section{\label{sec_intro}Introduction}
 
+In 1969 Thomas Schelling published his influential article "Models of Segregation" in \textit{The American Economic Review}. In the article Schelling uses an agent-based model to show that although individuals might have high tolerance towards other races the aggregated outcome will still be clear ethnic segregation. Ethnicity is, of course, not the only segregating factor in societies. In the book "The Big Sort" (2008),     the journalist Bill Bishop and the sociologist and statistician Robert Cushing argue that Americans now also segregate themselves along political affiliations. In their arguing, Bishop and Cushing point to the fact that the number of counties that was won by a landslide by either party has increased dramatically since the 1970s. 
+\newline In this short paper we will use an agent-based model similar to Schelling's to find out whether the magnitude of political segregation depends on which voting system that a country has. More specifically we will simulate political segregation using three different election models: first-past-the-post with two parties (e.g. USA), first-past-the-post with several parties (e.g. UK) and instant-runoff voting (e.g. Australia). This brief paper begins with a literature review, in which we highlight papers that discuss segregation, or geographical sorting, based on political opinions. We then explain our agent-based model and how it slightly varies depending on the election system imposed. Finally, we report and discuss our results.
+
+
 %*******************************************************************************************************************************************************************
 %*******************************************************************************************************************************************************************
+\section{Literature Review}\label{lit}
+There is a plethora of articles that look into the reasons as to why people move, and how these indvidual decisions combine to form larger migration patterns. The number of papers that explicitly investigate the extent to which people move and live according to political convictions is, however, considerably smaller. Nonetheless, there are several papers that deal with this issue in an American context and a couple of papers that use British data. 
+\newline Buscha et al. (2014) use data from the British Household Panel Survey to track individuals' political preferences and place of residence over a eighteen-year period. They use the panel data set to regress political preferences on the type of move undertaken in the last five years (from a labour constituency to a conservative constituency, from a liberal constituency to a labour constituency etc.) as a well as a number of control variables (e.g. sex, age, income). Their findings suggest that there is both a "political assimilation effect" (p. 546) (i.e. that people tend to adapt their political views to the majority views of the constituency they are moving in to) and a selection into areas (i.e. people with a certain political opinion tend to move into areas where the majority shares this opinion). This self selection effect does, however, disappear almost completely when the authors control for individual socio-economics characteristics, leading Buscha et al. to draw the conclusion that the political segregation is mainly a consequence of the fact that people who share political conviction also tend to share socio-economic background.    
+\newline Tam Cho, Gimpel and Hui (2012) track migration flows (i.e. moving from one ZIP code to another within the state or moving to an adjacent state) in seven US states between 2004 and 2008. They use hierarchical linear models, regressing change in partisan spread (i.e. the difference between Republican and Democrat voting registration rates) between the district the individual is moving from and the district the individual is moving to on a number of variables, including age, party affiliation and median income change. Like Buscha et al., Tam Cho et al. find that it is the economic factors that are most decisive when people decide where to move. They do, however, also find evidence that point to partisan composition of the moving destination being a factor in people's choice of new homes. 
+\newline In his article "Migration and Sorting in the American Electorate: Evidence from the 2006 Cooperative Congressional Election Study" (2011) Ian McDonald match election survey data with the US Postal Service's change-of-address database to examine whether an individual's ideological preference predicts the individual's moving destination (defined as congressional district). McDonald estimates a logit regression with the migrant's destination district partisanship as dependent variable and ideology and the political majority in the origin district, as well as covariates, as independent variables. McDonald finds that the migrant's new home district is more likely to be an ideological match than the district which the migrant left, indicating that Americans do indeed take the political views of their future neighbours into consideration when moving. 
 
-\section{The Model}\label{sec_model}
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+\section{\label{model}The Model}
+To answer the question posed in the introduction we will use an agent-based model\footnote{An agent-based model is, in short, a model where you simulate the actions of autonomous individual agents and evaluate the effects that these individual actions have on the system as a whole.} as layed out by Schelling in his 1969 article. 
+\subsection{First-past-the-post with two parties}
+We will simulate a society comprised of two types of individuals: republicans and democrats. The society is then divided into smaller local areas, counties, such that each individual lives in a county that is either republican or democrat depending on the majority view in the county. Our individuals, with a preset \textcolor{red}{x} to \textcolor{red}{x} ratio of republicans to democrats, are intitially randomly assigned to the houses in the different counties. A set number of houses are also empty, such that the individuals can move. We then construct the individuals' utility function such that it consists of the utility derived from the number of likeminded neighbours (i.e. number of people in the houses that surrounds your house that share your political view) and the utility derived from living in a county that is ruled by the party you favour, in the US case meaning that you live in a county where your political view is held by majority of the individuals in the county. We also specify a threshold utility. If the agent's utility is below this threshold the agent will move (and thus leave his house vacant), randomly, into a house that gives him a utility that is above the threshold level. In our simulations, our society consists of $33\times33$-houses square. Each county is $11\times11$ houses and each neighbourhood is $3\times3$ houses, where the agent whose neighbourhood it is naturally lives in the middle of this $3\times3$ matrix. (In our model we also let northern and southern, and eastern and western, borders of the square meet, so that the agents living on the edge of the square are also completely surrounded by houses, and thus living in neighbourhoods.) We then run the simulations until all agents have found a house in which their utility is above the threshold value.
 
-
+\subsection{First-past-the-post with several parties}
+\subsection{Instant run-off voting} 
 
 %*******************************************************************************************************************************************************************
 %*******************************************************************************************************************************************************************
@@ -111,6 +126,7 @@
 
 \section{\label{sec_res}Results}
 
+\section{\label{sec_res}Results}
 
 
 
@@ -136,7 +152,16 @@
 
 %Version 2
 \section*{\label{sec_ref}References}
-ANGRIST, J. D., AND J. PISCHKE (2009): \textit{Mostly Harmless Econometrics: An Empiricist's Companion}. Princeton University Press.
+
+BUSCH ET AL. (2014):`` Places and Preferences: A Longitudinal Analysis of Self-Selection and Contextual Effects,'' \textit{British Journal of Political Science} 46, 529-550.
+
+\noindent MCDONALD, I. (2011):`` Migration and Sorting in the American Electorate: Evidence From the 2006 Cooperative Congressional Election Study,'' \textit{American Politics Research} 39(3), 512-533.
+
+\noindent TAM CHO, W. K., GIMPEL, J. G. AND HUI, I. S (2012): ``Voter Migration and the Geographic Sorting of the
+American Electorate,'' \textit{Annals of the Association of American Geographers}, DOI:10.1080/00045608.2012.720229.
+ 
+
+\noindent ANGRIST, J. D., AND J. PISCHKE (2009): \textit{Mostly Harmless Econometrics: An Empiricist's Companion}. Princeton University Press.
     
 \noindent KENNEDY, P. (2005): ``Oh No! I Got the Wrong Sign! What Should I Do?,'' \textit{Journal of Economic Education}, 36, 77--92.
     
