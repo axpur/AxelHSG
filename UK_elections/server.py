@@ -68,12 +68,12 @@ def schelling_draw(agent):
     return portrayal
 
 happy_element = HappyElement()
-canvas_element = CanvasGrid(schelling_draw, 20, 20, 500, 500)
+canvas_element = CanvasGrid(schelling_draw, 33, 33, 500, 500)
 happy_chart = ChartModule([{"Label": "happy", "Color": "Black"}])
 
 model_params = {
-    "height": 20,
-    "width": 20,
+    "height": 33,
+    "width": 33,
     "density": UserSettableParameter("slider", "Agent density", 0.7, 0.1, 1.0, 0.1),
     "minority_1": UserSettableParameter("slider", "Fraction minority 1", 0.3, 0.00, 0.5, 0.05),
     "minority_2": UserSettableParameter("slider", "Fraction minority 2", 0.2, 0.00, 0.5, 0.05),
