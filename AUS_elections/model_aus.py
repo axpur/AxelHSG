@@ -227,7 +227,7 @@ class SchellingModel_vote(Model):
             "total_2": lambda m: m.type2,
             "total_3": lambda m: m.type3,
             "location_0": lambda m: m.elections_party0,
-            "location_1": lambda m: m.elections_pary1,
+            "location_1": lambda m: m.elections_party1,
             "location_2": lambda m: m.elections_center_0,
             "location_3": lambda m: m.elections_center_1,
             "location_total": lambda m: m.elections_type_total,
