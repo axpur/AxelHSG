@@ -10,7 +10,7 @@ class SchellingAgent(Agent):
     '''
     Schelling segregation agent
     '''
-    # Q: What is the purpose of _init_ exactly
+    # Q: What is the purpose of _init_ exactly see
     def __init__(self, pos, model, agent_type):
         '''
          Create a new Schelling agent.
