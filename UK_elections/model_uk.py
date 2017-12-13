@@ -10,20 +10,63 @@ class SchellingAgent(Agent):
     '''
     Schelling segregation agent
     '''
-    # Q: What is the purpose of _init_ exactly
     def __init__(self, pos, model, agent_type):
         '''
          Create a new Schelling agent.
          Args:
             unique_id: Unique identifier for the agent.
-            x, y: Agent initial location.
+            x, y: Agent initial location
             agent_type: Indicator for the agent's type (minority=1, majority=0)
         '''
         super().__init__(pos, model)
         self.pos = pos
         self.type = agent_type
+        # Determine to which location you belong in terms of X
+        if self.pos[0] >= 23:
+            self.x = 2
+        elif self.pos[0] >= 12:
+            self.x = 1
+        else:
+            self.x = 0
+
+        # Determine to which location you belong in terms of Y
+        if self.pos[1] >= 23:
+            self.y = 2
+        elif self.pos[1] >= 12:
+            self.y = 1
+        else:
+            self.y = 0
+
+        # Determine the location
+        self.loc = self.y*3+self.x
+
+        # Tracking the number of different types of agents in location
+        if self.type == 0:
+            self.model.elections_type0[self.loc] += 1
+        elif self.type == 1:
+            self.model.elections_type1[self.loc] += 1
+        else:
+            self.model.elections_type2[self.loc] += 1
+
+
 
     def step(self):
+
+        similar = 0  # How many agents around me are similar to me. Initially -1. Done for each agent at every step.
+        for neighbor in self.model.grid.neighbor_iter(self.pos):
+            if neighbor.type == self.type:
+                similar += 1
+
+        # Check whether your type matches the type that won the election in your location
+        if self.type == self.model.elections[self.loc]:
+            similar = similar + self.model.gamma
+        # If unhappy, move:
+        if similar < self.model.homophily:
+            # Simplifies location adjustment
+            self.model.grid.move_to_empty(self)  # If not happy, move to empty cell.
+        else:
+            # Keep track of happy people
+            self.model.happy += 1
 
         # Determine to which location you belong in terms of X
         if self.pos[0] >= 23:
@@ -44,21 +87,13 @@ class SchellingAgent(Agent):
         # Determine the location
         self.loc = self.y*3+self.x
 
-        similar = 0  # How many agents around me are similar to me. Initially -1. Done for each agent at every step.
-        for neighbor in self.model.grid.neighbor_iter(self.pos):
-            if neighbor.type == self.type:
-                similar += 1
-
-        # Check whether your type matches the type that won the election in your location
-        if self.type == self.model.elections[self.loc]:
-            similar = similar + 1
-        # If unhappy, move:
-        if similar < self.model.homophily:
-            # Simplifies location adjustment
-            self.model.grid.move_to_empty(self)  # If not happy, move to empty cell.
+        # Tracking the number of different types of agents in location
+        if self.type == 0:
+            self.model.elections_type0[self.loc] += 1
+        elif self.type == 2:
+            self.model.elections_type2[self.loc] += 1
         else:
-            # Keep track of happy people
-            self.model.happy += 1
+            self.model.elections_type1[self.loc] += 1
 
 
 class SchellingModel_vote(Model):
@@ -76,7 +111,7 @@ class SchellingModel_vote(Model):
         self.minority_1 = minority_1  # percentage minority in the city
         self.minority_2 = minority_2
         self.homophily = homophily  # number of similar minded person that you want around you
-
+        self.gamma = gamma #weight on election outcome
         # Setting up the AGM simulation
         self.schedule = RandomActivation(self)
 
@@ -87,19 +122,19 @@ class SchellingModel_vote(Model):
         # Setting the number of happy people to zero
         self.happy = 0
 
-        self.datacollector = DataCollector(
-            {"happy": lambda m: m.happy},  # Model-level count of happy agents
-            # For testing purposes, agent's individual x and y
-            {"x": lambda a: a.pos[0], "y": lambda a: a.pos[1]})
-
         self.running = True
-        self.center = []
-        location = [6, 17, 28]
 
-        for i in location:
-            for j in location:
-                self.center.append((i, j))
+        # Setting a variable to store total number of different types of agents
+        self.type0 = 0
+        self.type1 = 0
+        self.type2 = 0
 
+        # Setting up lists to store location specific values
+        self.elections_type0 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.elections_type1 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.elections_type2 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.elections_type_total = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.elections = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         # Set up agents
         # We use a grid iterator that returns
         # the coordinates of a cell as well as
@@ -128,43 +163,50 @@ class SchellingModel_vote(Model):
                 agent = SchellingAgent((x, y), self, agent_type)
                 self.grid.position_agent(agent, (x, y))
                 self.schedule.add(agent)
+        # For each location run the elections (range(9) goes from 0 to 8)
+        for i in range(9):
+            self.elections_type_total[i] = self.elections_type0[i] + self.elections_type1[i] + self.elections_type2[i]
+            if self.elections_type1[i] >= self.elections_type0[i] and self.elections_type2[i]:
+                self.elections[i] += 1
+            if self.elections_type2[i] >= self.elections_type0[i] and self.elections_type1[i]:
+                self.elections[i] += 2
+
+        # Storing relevant data for calculating segregation measures
+        self.datacollector = DataCollector(
+            {"happy": lambda m: m.happy,
+            "total_0": lambda m: m.type0,
+            "total_1": lambda m: m.type1,
+            "total_2": lambda m: m.type2,
+            "location_0": lambda m: m.elections_type0,
+            "location_1": lambda m: m.elections_type1,
+            "location_2": lambda m: m.elections_type2,
+            "location_total": lambda m: m.elections_type_total,
+            "elections": lambda m: m.elections})
 
     def step(self):
         '''
         Run one step of the model. If All agents are happy, halt the model.
         '''
 
+        # Reseting location specific lists
+        self.elections_type0 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.elections_type1 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.elections_type2 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.elections_type_total = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.happy = 0  # Reset counter of happy agents
-        self.elections = []  # Reseting the election results
-
-        # Election calculator. For each location center reset the blue and
-        # red citizen counter.
-        for i in self.center:
-            blue = 0
-            red = 0
-            yellow = 0
-
-            # For each center find all citizens living in the location and
-            # add to the election result storer based on the type of the agent
-            for people in self.grid.get_neighbors(pos = i, moore = True, include_center = True, radius = 5):
-                if people.type == 0:
-                    blue += 1
-                if people.type == 2:
-                    yellow += 1
-                else:
-                    red += 1
-
-            # Depending on the election results assign the value to self.elections
-            # Should be more if commands, to separte what to do when it is
-            # 50-50
-            if blue >= red and blue >= yellow:
-                self.elections.append(0)
-            if yellow >= red and yellow >= blue:
-                self.elections.append(2)
-            if red >= blue and red >= yellow:
-                self.elections.append(1)
-
         self.schedule.step()
+        # Reseting location results
+        self.elections = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        # Re-running elections after agents have moved
+        for i in range(9):
+            self.elections_type_total[i] = self.elections_type0[i] + self.elections_type1[i] + self.elections_type2[i]
+            if self.elections_type1[i] >= self.elections_type0[i] and self.elections_type2[i]:
+                self.elections[i] += 1
+            if self.elections_type2[i] >= self.elections_type0[i] and self.elections_type1[i]:
+                self.elections[i] += 2
+
+        # Storing relevant data
         self.datacollector.collect(self)
 
         if self.happy == self.schedule.get_agent_count():
