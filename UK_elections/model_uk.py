@@ -101,7 +101,7 @@ class SchellingModel_vote(Model):
     Model class for the Schelling segregation model.
     '''
 
-    def __init__(self, height, width, density, minority_1, minority_2, homophily):
+    def __init__(self, height, width, density, minority_1, minority_2, homophily, gamma):
         '''
         '''
         # Setting up the Model
