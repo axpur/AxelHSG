@@ -73,17 +73,19 @@ def schelling_draw(agent):
     return portrayal
 
 happy_element = HappyElement()
-canvas_element = CanvasGrid(schelling_draw, 20, 20, 500, 500)
+canvas_element = CanvasGrid(schelling_draw, 33, 33, 500, 500)
 happy_chart = ChartModule([{"Label": "happy", "Color": "Black"}])
 
 model_params = {
-    "height": 20,
-    "width": 20,
+    "height": 33,
+    "width": 33,
     "density": UserSettableParameter("slider", "Agent density", 0.7, 0.1, 1.0, 0.1),
-    "party_1": UserSettableParameter("slider", "Fraction party 2", 0.3, 0.00, 0.5, 0.05),
-    "party_2": UserSettableParameter("slider", "Fraction minority party 3", 0.1, 0.00, 0.2, 0.05),
-    "party_3": UserSettableParameter("slider", "Fraction minority party 4", 0.1, 0.00, 0.2, 0.05),
-    "homophily": UserSettableParameter("slider", "Homophily", 3, 0, 8, 1)
+    "type_1": UserSettableParameter("slider", "Fraction type 1", 0.33, 0.00, 1, 0.05),
+    "type_2": UserSettableParameter("slider", "Fraction type 2", 0.16, 0.00, 1, 0.05),
+    "type_3": UserSettableParameter("slider", "Fraction type 3", 0.17, 0.00, 1, 0.05),
+    "homophily": UserSettableParameter("slider", "Homophily", 3, 0, 8, 1),
+    "gamma": UserSettableParameter("slider", "Election weight", 1, 0, 5, 0.5 )
+
 }
 
 server = ModularServer(SchellingModel_vote,
