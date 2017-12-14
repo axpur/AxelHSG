@@ -33,6 +33,10 @@ class SchellingTextVisualization(TextVisualization):
             return 'O'
         if a.type == 1:
             return 'X'
+        if a.type == 2:
+            return 'L'
+        if a.type == 3:
+            return 'K'
 
 
 class HappyElement(TextElement):
@@ -60,7 +64,7 @@ def schelling_draw(agent):
     if agent.type == 2:
         portrayal["Color"] = "Pink"
 
-    if agent.type ==3:
+    if agent.type == 3:
         portrayal["Color"] = "Lightblue"
 
     if agent.type == 0:

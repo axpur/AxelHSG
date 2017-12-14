@@ -29,9 +29,9 @@ class SchellingAgent(Agent):
         self.neighbor_types = []
 
         # Determine to which location you belong in terms of X
-        if self.pos[0] >= 23:
+        if self.pos[0] >= 22:
             self.x = 2
-        elif self.pos[0] >= 12:
+        elif self.pos[0] >= 11:
             self.x = 1
         else:
             self.x = 0
@@ -92,17 +92,17 @@ class SchellingAgent(Agent):
             self.model.happy += 1
 
         # Determine to which location you belong in terms of X
-        if self.pos[0] >= 23:
+        if self.pos[0] >= 22:
             self.x = 2
-        elif self.pos[0] >= 12:
+        elif self.pos[0] >= 11:
             self.x = 1
         else:
             self.x = 0
 
         # Determine to which location you belong in terms of Y
-        if self.pos[1] >= 23:
+        if self.pos[1] >= 22:
             self.y = 2
-        elif self.pos[1] >= 12:
+        elif self.pos[1] >= 11:
             self.y = 1
         else:
             self.y = 0

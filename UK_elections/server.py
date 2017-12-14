@@ -6,8 +6,7 @@ from mesa.visualization.TextVisualization import (
     TextData, TextGrid, TextVisualization
 )
 
-#from model import SchellingModel
-from model_uk import SchellingModel_vote
+from model_uk import SchellingModel_UK
 
 
 class SchellingTextVisualization(TextVisualization):
@@ -36,6 +35,8 @@ class SchellingTextVisualization(TextVisualization):
             return 'X'
         if a.type == 2:
             return 'L'
+        if a.type == 3:
+            return 'K'
 
 
 class HappyElement(TextElement):
@@ -47,6 +48,7 @@ class HappyElement(TextElement):
 
     def render(self, model):
         return "Happy agents: " + str(model.happy)
+
 
 def schelling_draw(agent):
     '''
@@ -60,12 +62,16 @@ def schelling_draw(agent):
         portrayal["Color"] = "Red"
 
     if agent.type == 2:
-        portrayal["Color"] = "Yellow"
+        portrayal["Color"] = "Pink"
+
+    if agent.type == 3:
+        portrayal["Color"] = "Lightblue"
 
     if agent.type == 0:
         portrayal["Color"] = "Blue"
 
     return portrayal
+
 
 happy_element = HappyElement()
 canvas_element = CanvasGrid(schelling_draw, 33, 33, 500, 500)
@@ -75,14 +81,16 @@ model_params = {
     "height": 33,
     "width": 33,
     "density": UserSettableParameter("slider", "Agent density", 0.7, 0.1, 1.0, 0.1),
-    "minority_1": UserSettableParameter("slider", "Fraction minority 1", 0.3, 0.00, 0.5, 0.05),
-    "minority_2": UserSettableParameter("slider", "Fraction minority 2", 0.2, 0.00, 0.5, 0.05),
-    "homophily": UserSettableParameter("slider", "Homophily", 3, 0, 8, 1),
-    "gamma": UserSettableParameter("slider", "Election weight", 1, 0, 5, 0.5 )
+    "type_1": UserSettableParameter("slider", "Fraction type 1", 0.33, 0.00, 1, 0.05),
+    "type_2": UserSettableParameter("slider", "Fraction type 2", 0.16, 0.00, 1, 0.05),
+    "type_3": UserSettableParameter("slider", "Fraction type 3", 0.17, 0.00, 1, 0.05),
+    "homophily": UserSettableParameter("slider", "Homophily", 5, 0, 8, 1),
+    "gamma": UserSettableParameter("slider", "Election weight", 1, 0, 5, 0.5),
+    "alpha": UserSettableParameter("slider", "Alpha", 1, 0, 0.5, 0.1)
 
 }
 
-server = ModularServer(SchellingModel_vote,
+server = ModularServer(SchellingModel_UK,
                        [canvas_element, happy_element, happy_chart],
                        "Schelling", model_params)
 server.launch()

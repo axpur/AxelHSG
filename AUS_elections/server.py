@@ -64,13 +64,14 @@ def schelling_draw(agent):
     if agent.type == 2:
         portrayal["Color"] = "Pink"
 
-    if agent.type ==3:
+    if agent.type == 3:
         portrayal["Color"] = "Lightblue"
 
     if agent.type == 0:
         portrayal["Color"] = "Blue"
 
     return portrayal
+
 
 happy_element = HappyElement()
 canvas_element = CanvasGrid(schelling_draw, 33, 33, 500, 500)
