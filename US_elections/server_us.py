@@ -54,9 +54,16 @@ def schelling_draw(agent):
         return
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
 
-    if agent.type == 0:
+    if agent.type == 1:
         portrayal["Color"] = "Red"
-    else:
+
+    if agent.type == 2:
+        portrayal["Color"] = "Pink"
+
+    if agent.type ==3:
+        portrayal["Color"] = "Lightblue"
+
+    if agent.type == 0:
         portrayal["Color"] = "Blue"
     return portrayal
 
@@ -69,9 +76,12 @@ model_params = {
     "height": 33,
     "width": 33,
     "density": UserSettableParameter("slider", "Agent density", 0.7, 0.1, 1.0, 0.1),
-    "minority_pc": UserSettableParameter("slider", "Fraction minority", 0.5, 0.00, 1.0, 0.05),
+    "type_1": UserSettableParameter("slider", "Fraction type 1", 0.33, 0.00, 1, 0.05),
+    "type_2": UserSettableParameter("slider", "Fraction type 2", 0.16, 0.00, 1, 0.05),
+    "type_3": UserSettableParameter("slider", "Fraction type 3", 0.17, 0.00, 1, 0.05),
     "homophily": UserSettableParameter("slider", "Homophily", 5, 0, 8, 1),
-    "gamma": UserSettableParameter("slider", "Election weight", 1, 0, 5, 0.5 )
+    "gamma": UserSettableParameter("slider", "Election weight", 1, 0, 5, 0.5),
+    "alpha": UserSettableParameter("slider", "Alpha", 1, 0, 0.5, 0.1)
 
 }
 
