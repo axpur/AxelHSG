@@ -83,7 +83,9 @@ model_params = {
     "type_1": UserSettableParameter("slider", "Fraction type 1", 0.33, 0.00, 1, 0.05),
     "type_2": UserSettableParameter("slider", "Fraction type 2", 0.16, 0.00, 1, 0.05),
     "type_3": UserSettableParameter("slider", "Fraction type 3", 0.17, 0.00, 1, 0.05),
-    "homophily": UserSettableParameter("slider", "Homophily", 3, 0, 8, 1)
+    "homophily": UserSettableParameter("slider", "Homophily", 3, 0, 8, 1),
+    "gamma": UserSettableParameter("slider", "Election weight", 1, 0, 5, 0.5 )
+
 }
 
 server = ModularServer(SchellingModel_vote,

@@ -60,8 +60,30 @@ class SchellingAgent(Agent):
                 similar += 1
 
         # Check whether your type matches the type that won the election in your location
-        if self.type == self.model.elections[self.loc]: #CHANGE
-            similar = similar + 1
+        # Takes second order preference into account
+        if self.type == 0:
+            if self.type == self.model.elections[self.loc]:
+                similar = similar + self.model.gamma
+            elif self.model.elections[self.loc] == 2:
+                similar = similar + 0.5*self.model.gamma
+        elif self.type == 2:
+            if self.model.elections[self.loc] == 2:
+                similar = similar + self.model.gamma
+            elif self.model.elections[self.loc] == 0:
+                similar = similar + 0.5*self.model.gamma
+        elif self.type == 3:
+            if self.model.elections[self.loc] == 2:
+                similar = similar + self.model.gamma
+            elif self.model.elections[self.loc] == 1:
+                similar = similar + 0.5*self.model.gamma
+        else:
+            if self.type == self.model.elections[self.loc]:
+                similar = similar + self.model.gamma
+            elif self.model.elections[self.loc] == 2:
+                similar = similar + 0.5*self.model.gamma
+
+
+
         # If unhappy, move:
         if similar < self.model.homophily:
             # Simplifies location adjustment
@@ -105,7 +127,7 @@ class SchellingModel_vote(Model):
     Model class for the Schelling segregation model.
     '''
 
-    def __init__(self, height, width, density, type_1, type_2, type_3, homophily):
+    def __init__(self, height, width, density, type_1, type_2, type_3, homophily, gamma):
         '''
         '''
         # Setting up the Model
@@ -116,6 +138,7 @@ class SchellingModel_vote(Model):
         self.type_2 = type_2
         self.type_3 = type_3
         self.homophily = homophily  # number of similar minded person that you want around you
+        self.gamma = gamma #weight on the election outcome in utility function
 
         # Setting up the AGM simulation
         self.schedule = RandomActivation(self)
@@ -167,14 +190,14 @@ class SchellingModel_vote(Model):
                 else:
                     if random_number < (self.type_1+self.type_2):
                         agent_type = 2
-                        self.type2 += 2
+                        self.type2 += 1 # E: the variable tracks total number of different types, so should be adding one
                     else:
                         if random_number < (self.type_1+self.type_2+self.type_3):
                             agent_type = 3
-                            self.type2 += 3
+                            self.type3 += 1 # E: Same as last
                         else:
                             agent_type = 0
-                            self.type0 = 0
+                            self.type0 += 1 # E:Missing plus sign
 
                 # Refer to the above function related to Agent attributes
                 agent = SchellingAgent((x, y), self, agent_type)
@@ -193,30 +216,31 @@ class SchellingModel_vote(Model):
                 self.elections[i] += 2
             elif (self.elections_party0[i]/self.elections_type_total[i]) >= 0.5:
                 self.elections[i] += 0
-
-            #Otherwise, let types who voted for the losing party vote for their second preference
-            elif self.elections_party1[i] < self.elections_party0[i] and self.elections_party1[i] < self.elections_center[i]:
-                #Party 1 voters vote center
-                self.elections_center[i]=self.elections_center[i]+self.elections_party1[i]
-
-            elif self.elections_party0 < self.elections_party1 and self.elections_party1 < self.elections_center:
-                #Party 0 voters vote center
-                self.elections_center[i]=self.elections_center[i]+self.elections_party0[i]
-
-            elif self.elections_center[i] < self.elections_party0[i] and self.elections_center[i] < self.elections_party1[i]:
-                #type 2 votes for 0; type 3 votes for 1
-                self.elections_party0[i]=self.elections_party0[i] + self.elections_center_0[i]
-                self.elections_party1[i]=self.elections_party1[i] + self.elections_center_1[i]
-
-
-            #Now repeat the elections with the new votes
-            if (self.elections_party1[i]/self.elections_type_total[i]) >= 0.5:
-                self.elections[i] += 1
-            elif (self.elections_center[i]/self.elections_type_total[i]) >= 0.5:
-                self.elections[i] += 2
-            #elif (self.elections_party0[i]/self.elections_type_total[i]) >= 0.5:
+            # E: Adjusting 'if-else' staetment order
             else:
-                self.elections[i] += 0
+            #Otherwise, let types who voted for the losing party vote for their second preference
+                if self.elections_party1[i] < self.elections_party0[i] and self.elections_party1[i] < self.elections_center[i]:
+                    #Party 1 voters vote center
+                    self.elections_center[i]=self.elections_center[i]+self.elections_party1[i]
+                # E:Missing [i] for if conditions & in the second conditions should be party 0 I think
+                elif self.elections_party0[i] < self.elections_party1[i] and self.elections_party0[i] < self.elections_center[i]:
+                    #Party 0 voters vote center
+                    self.elections_center[i]=self.elections_center[i]+self.elections_party0[i]
+
+                elif self.elections_center[i] < self.elections_party0[i] and self.elections_center[i] < self.elections_party1[i]:
+                    #type 2 votes for 0; type 3 votes for 1
+                    self.elections_party0[i]=self.elections_party0[i] + self.elections_center_0[i]
+                    self.elections_party1[i]=self.elections_party1[i] + self.elections_center_1[i]
+
+
+                #Now repeat the elections with the new votes
+                if (self.elections_party1[i]/self.elections_type_total[i]) >= 0.5:
+                    self.elections[i] += 1
+                elif (self.elections_center[i]/self.elections_type_total[i]) >= 0.5:
+                    self.elections[i] += 2
+                #elif (self.elections_party0[i]/self.elections_type_total[i]) >= 0.5:
+                else:
+                    self.elections[i] += 0
 
 
         # Storing relevant data for calculating segregation measures
@@ -262,30 +286,32 @@ class SchellingModel_vote(Model):
                 self.elections[i] += 2
             elif (self.elections_party0[i]/self.elections_type_total[i]) >= 0.5:
                 self.elections[i] += 0
-
-            #Otherwise, let types who voted for the losing party vote for their second preference
-            elif self.elections_party1[i] < self.elections_party0[i] and self.elections_party1[i] < self.elections_center[i]:
-                #Party 1 voters vote center
-                self.elections_center[i]=self.elections_center[i]+self.elections_party1[i]
-
-            elif self.elections_party0 < self.elections_party1 and self.elections_party1 < self.elections_center:
-                #Party 0 voters vote center
-                self.elections_center[i]=self.elections_center[i]+self.elections_party0[i]
-
-            elif self.elections_center[i] < self.elections_party0[i] and self.elections_center[i] < self.elections_party1[i]:
-                #type 2 votes for 0; type 3 votes for 1
-                self.elections_party0[i]=self.elections_party0[i] + self.elections_center_0[i]
-                self.elections_party1[i]=self.elections_party1[i] + self.elections_center_1[i]
-
-
-            #Now repeat the elections with the new votes
-            if (self.elections_party1[i]/self.elections_type_total[i]) >= 0.5:
-                self.elections[i] += 1
-            elif (self.elections_center[i]/self.elections_type_total[i]) >= 0.5:
-                self.elections[i] += 2
-            #elif (self.elections_party0[i]/self.elections_type_total[i]) >= 0.5:
+                # E: Adjusting 'if-else' staetment order
             else:
-                self.elections[i] += 0
+                #Otherwise, let types who voted for the losing party vote for their second preference
+                if self.elections_party1[i] < self.elections_party0[i] and self.elections_party1[i] < self.elections_center[i]:
+                    #Party 1 voters vote center
+                    self.elections_center[i]=self.elections_center[i]+self.elections_party1[i]
+
+                # E:Missing [i] for if conditions & in the second conditions should be party 0 I think
+                elif self.elections_party0[i] < self.elections_party1[i] and self.elections_party0[i] < self.elections_center[i]:
+                    #Party 0 voters vote center
+                    self.elections_center[i]=self.elections_center[i]+self.elections_party0[i]
+
+                elif self.elections_center[i] < self.elections_party0[i] and self.elections_center[i] < self.elections_party1[i]:
+                    #type 2 votes for 0; type 3 votes for 1
+                    self.elections_party0[i]=self.elections_party0[i] + self.elections_center_0[i]
+                    self.elections_party1[i]=self.elections_party1[i] + self.elections_center_1[i]
+
+
+                #Now repeat the elections with the new votes
+                if (self.elections_party1[i]/self.elections_type_total[i]) >= 0.5:
+                    self.elections[i] += 1
+                elif (self.elections_center[i]/self.elections_type_total[i]) >= 0.5:
+                    self.elections[i] += 2
+                #elif (self.elections_party0[i]/self.elections_type_total[i]) >= 0.5:
+                else:
+                    self.elections[i] += 0
 
 
         # Storing relevant data

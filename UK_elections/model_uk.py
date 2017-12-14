@@ -59,7 +59,7 @@ class SchellingAgent(Agent):
 
         # Check whether your type matches the type that won the election in your location
         if self.type == self.model.elections[self.loc]:
-            similar = similar + 1
+            similar = similar + self.model.gamma
         # If unhappy, move:
         if similar < self.model.homophily:
             # Simplifies location adjustment
@@ -101,7 +101,7 @@ class SchellingModel_vote(Model):
     Model class for the Schelling segregation model.
     '''
 
-    def __init__(self, height, width, density, minority_1, minority_2, homophily):
+    def __init__(self, height, width, density, minority_1, minority_2, homophily, gamma):
         '''
         '''
         # Setting up the Model
@@ -111,7 +111,7 @@ class SchellingModel_vote(Model):
         self.minority_1 = minority_1  # percentage minority in the city
         self.minority_2 = minority_2
         self.homophily = homophily  # number of similar minded person that you want around you
-
+        self.gamma = gamma #weight on election outcome
         # Setting up the AGM simulation
         self.schedule = RandomActivation(self)
 

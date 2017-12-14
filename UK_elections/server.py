@@ -77,7 +77,9 @@ model_params = {
     "density": UserSettableParameter("slider", "Agent density", 0.7, 0.1, 1.0, 0.1),
     "minority_1": UserSettableParameter("slider", "Fraction minority 1", 0.3, 0.00, 0.5, 0.05),
     "minority_2": UserSettableParameter("slider", "Fraction minority 2", 0.2, 0.00, 0.5, 0.05),
-    "homophily": UserSettableParameter("slider", "Homophily", 3, 0, 8, 1)
+    "homophily": UserSettableParameter("slider", "Homophily", 3, 0, 8, 1),
+    "gamma": UserSettableParameter("slider", "Election weight", 1, 0, 5, 0.5 )
+
 }
 
 server = ModularServer(SchellingModel_vote,
