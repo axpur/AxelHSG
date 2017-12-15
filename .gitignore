@@ -1,7 +1,13 @@
+## Python relted
 *.pyc
 __pycache__/
+.ipynb_checkpoints/
+
+## Data related
 *.csv
 data/
+
+## LaTeX related
 *.aux
 *.lof
 *.log
@@ -13,3 +19,7 @@ data/
 *.fot
 *.cb
 *.cb2
+
+## R related
+.RData
+.Rhistory

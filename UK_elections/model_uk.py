@@ -242,11 +242,23 @@ class SchellingModel_UK(Model):
             "location_2": lambda m: m.elections_center_0,
             "location_3": lambda m: m.elections_center_1,
             "location_total": lambda m: m.elections_type_total,
-            "elections": lambda m: m.elections},
+            "elections": lambda m: m.elections,
+            "seg_agents": lambda m: m.segregated_agents},
             {"x": lambda a: a.pos[0], "y": lambda a: a.pos[1],
             "util": lambda a: a.utility, "loc": lambda a: a.loc,
             "type": lambda a: a.type, "neighbor_types": lambda a: a.neighbor_types,
             "elec_util": lambda a: a.election_utility})
+
+        # Calculating number of segregated agents
+        self.segregated_agents = 0
+        for agent in self.schedule.agents:
+            segregated = True
+            for neighbor in self.grid.neighbor_iter(agent.pos):
+                if neighbor.type != agent.type:
+                    segregated = False
+                    break
+            if segregated:
+                self.segregated_agents += 1
 
     def step(self):
         '''
@@ -295,6 +307,16 @@ class SchellingModel_UK(Model):
                 elif random_num > 0.33:
                     self.elections[i] += 1
 
+        # Calculating number of segregated agents
+        self.segregated_agents = 0
+        for agent in self.schedule.agents:
+            segregated = True
+            for neighbor in self.grid.neighbor_iter(agent.pos):
+                if neighbor.type != agent.type:
+                    segregated = False
+                    break
+            if segregated:
+                self.segregated_agents += 1
         # Storing relevant data
         self.datacollector.collect(self)
 
