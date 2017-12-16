@@ -3,10 +3,6 @@
 __pycache__/
 .ipynb_checkpoints/
 
-## Data related
-*.csv
-data/
-
 ## LaTeX related
 *.aux
 *.lof
