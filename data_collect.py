@@ -10,21 +10,21 @@ start_time = time.time()
 random.seed(1234)
 
 # Running multiple times and storing as a csv file
-for i in range(100):
+for i in range(50):
     # Defining all models
     model_us = SchellingModel_US(33, 33, 0.7, 0.33, 0.16, 0.17, 5, 1, 0.5)
     model_uk = SchellingModel_UK(33, 33, 0.7, 0.33, 0.16, 0.17, 5, 1, 0.5)
     model_aus = SchellingModel_AUS(33, 33, 0.7, 0.33, 0.16, 0.17, 5, 1, 0.5)
 
-    while model_us.running and model_us.schedule.steps < 100:
+    while model_us.running and model_us.schedule.steps < 200:
         model_us.step()
     model_us_data = model_us.datacollector.get_model_vars_dataframe()  # Storing data of a single run
 
-    while model_uk.running and model_uk.schedule.steps < 100:
+    while model_uk.running and model_uk.schedule.steps < 200:
         model_uk.step()
     model_uk_data = model_uk.datacollector.get_model_vars_dataframe()  # Storing data of a single run
 
-    while model_aus.running and model_aus.schedule.steps < 100:
+    while model_aus.running and model_aus.schedule.steps < 200:
         model_aus.step()
     model_aus_data = model_aus.datacollector.get_model_vars_dataframe()  # Storing data of a single run
 
@@ -57,6 +57,7 @@ model_uk_all.to_csv('data/out_uk.csv')  # Save the file
 model_aus_all.to_csv('data/out_aus.csv')  # Save the file
 print("--- %s seconds ---" % (time.time() - start_time))
 
+random.seed(5245)
 for j in range(4, 7):
     for i in range(100):
         # Defining all models
@@ -105,6 +106,7 @@ model_us_all_th.to_csv('data/out_us_th.csv')  # Save the file
 model_uk_all_th.to_csv('data/out_uk_th.csv')  # Save the file
 model_aus_all_th.to_csv('data/out_aus_th.csv')  # Save the file
 
+random.seed(7892)
 print("--- %s seconds ---" % (time.time() - start_time))
 for j in [0.5, 1, 1.5]:
     for i in range(100):
@@ -154,6 +156,7 @@ model_us_all_el.to_csv('data/out_us_el.csv')  # Save the file
 model_uk_all_el.to_csv('data/out_uk_el.csv')  # Save the file
 model_aus_all_el.to_csv('data/out_aus_el.csv')  # Save the file
 
+random.seed(2094)
 print("--- %s seconds ---" % (time.time() - start_time))
 for j in [0.25, 0.5, 0.75]:
     for i in range(25):
