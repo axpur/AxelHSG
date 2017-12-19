@@ -100,7 +100,7 @@ complete_calc <- function(data_out){
     group_by(run, type, steps, cnt, cases) %>%
     summarize(grp_info = sum((loc_total/(total*e_grp))*pi_jm*log(pi_jm_log/pi_m) + (loc_total/(total*e_grp))*pi_other_j*log(pi_other_j_log/pi_other)))
   
-  return(list(data_ratios1, data_ratios2))
+  return(list(data_ratios1, data_ratios2, data_store))
 }
 
 #### Libraries ####

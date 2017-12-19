@@ -86,7 +86,7 @@ model_params = {
     "type_3": UserSettableParameter("slider", "Fraction type 3", 0.17, 0.00, 1, 0.05),
     "homophily": UserSettableParameter("slider", "Homophily", 5, 0, 8, 1),
     "gamma": UserSettableParameter("slider", "Election weight", 1, 0, 5, 0.5),
-    "alpha": UserSettableParameter("slider", "Alpha", 1, 0, 0.5, 0.1)
+    "alpha": UserSettableParameter("slider", "Alpha", 0.5, 0, 1, 0.1)
 
 }
 

@@ -57,6 +57,7 @@ model_uk_all.to_csv('data/out_uk.csv')  # Save the file
 model_aus_all.to_csv('data/out_aus.csv')  # Save the file
 print("--- %s seconds ---" % (time.time() - start_time))
 
+random.seed(12344)
 for j in range(4, 7):
     for i in range(100):
         # Defining all models
@@ -105,6 +106,7 @@ model_us_all_th.to_csv('data/out_us_th.csv')  # Save the file
 model_uk_all_th.to_csv('data/out_uk_th.csv')  # Save the file
 model_aus_all_th.to_csv('data/out_aus_th.csv')  # Save the file
 
+random.seed(56789)
 print("--- %s seconds ---" % (time.time() - start_time))
 for j in [0.5, 1, 1.5]:
     for i in range(100):
@@ -154,9 +156,10 @@ model_us_all_el.to_csv('data/out_us_el.csv')  # Save the file
 model_uk_all_el.to_csv('data/out_uk_el.csv')  # Save the file
 model_aus_all_el.to_csv('data/out_aus_el.csv')  # Save the file
 
+random.seed(53202)
 print("--- %s seconds ---" % (time.time() - start_time))
 for j in [0.25, 0.5, 0.75]:
-    for i in range(25):
+    for i in range(100):
         # Defining all models
         model_us = SchellingModel_US(33, 33, 0.7, 0.33, 0.16, 0.17, 5, 1, j)
         model_uk = SchellingModel_UK(33, 33, 0.7, 0.33, 0.16, 0.17, 5, 1, j)
