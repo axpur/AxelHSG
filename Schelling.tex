@@ -104,67 +104,109 @@ There is a plethora of articles that look into the reasons as to why people move
 %*******************************************************************************************************************************************************************
 \section{\label{model}The Model}
 To answer the question posed in the introduction we will use an agent-based model\footnote{An agent-based model is, in short, a model where you simulate the actions of autonomous individual agents and evaluate the effects that these individual actions have on the system as a whole.} as layed out by Schelling in his 1969 article. 
-\subsection{First-past-the-post with two parties}
-We will simulate a society comprised of four types of individuals: republicans, moderate republicans, democrats and moderate democrats. The society is then divided into smaller local areas, counties, such that each individual lives in a county that is either republican or democrat depending on the majority view in the county. Our individuals, \textcolor{red}{33} per cent republicans and democrats respectively and \textcolor{red}{17} per cent moderate republicans and moderate democrats respectively, are intitially randomly assigned to the houses in the different counties. A set \textcolor{red}{20} per cent of the houses are also empty, such that the individuals can move. We then construct the individuals' \textcolor{red}{utility function} such that it consists of the utility derived from the number of likeminded neighbours (i.e. number of people in the houses that surrounds your house that share your political view) and the utility derived from living in a county that is ruled by the party you favour, in the US case meaning that you live in a county where your political view is held by majority of the individuals in the county. We also specify a \textcolor{red}{threshold utility}(\textcolor{red}{you want at least 5 of the 8 persons around you to share your view}). If the agent's utility is below this threshold the agent will move (and thus leave his house vacant), randomly, into a house that gives him a utility that is above the threshold level. In our simulations, our society consists of $33\times33$-houses square. Each county is $11\times11$ houses (our society thus consists of nine counties) and each neighbourhood is $3\times3$ houses, where the agent whose neighbourhood it is naturally lives in the middle of this $3\times3$ matrix. (In our model we also let northern and southern, and eastern and western, borders of the square meet, so that the agents living on the edge of the square are also completely surrounded by houses, and thus living in neighbourhoods.)
-We then run the simulations until all agents have found a house in which their utility is above the threshold value.
+\subsection{USA: First-past-the-post with two parties}
+ For the US model society, one can think of the four types of agents as republicans, moderate republicans, democrats and moderate democrats. The society is then divided into smaller local areas, counties 
+ %not states?
+ , such that each individual lives in a county that is either republican or democrat depending on the majority view in the county. Our individuals, 33\% republicans and democrats respectively and 17\% moderate republicans and moderate democrats, respectively. %, are initially randomly assigned to the houses in the different counties. A set \textcolor{red}{20} per cent of the houses are also empty, such that the individuals can move.
+ Thus, in the whole society there will be 50\% of agents voting for each party. Of course, this distribution can vary quite significantly across counties, so that it is a priori not clear, whether a county will be blue or red.
+ The electoral system of the US is such that there are two parties\footnote{We abstract away from small parties that exist in the US in reality.} that compete in local elections. The party that gets the majority of votes (here in both absolute and relative terms), wins the county. All types will want to vote for one of the two parties: Republicans and moderate republicans vote for the same party and democrats and moderate democrats together vote for the other party. Agents gain election utility if and only if they live in a county where their political view is held by the majority of the individuals.  Formally, we can write individuals' utility function as follows:
+  
+  
+ \begin{equation}
+ U_i=t_{same_i}+\alpha \, t_{similar_i}+\gamma \, election_{win_c}
+ \end{equation}
+ 
+ where $t_{same}$ is the number of neighbors, i.e. agents in adjacent parts of the grid, that have the same type as the individual. $t_{similar}$ is the number of neighbors that voted for the same party but are not the same type. For example, a republican type derives some utility from living next to a moderate republican but possibly not as much as from living to someone who is also a pure republican. We set $\alpha$ to varying values in the analysis. Lastly, $election_{win}$ is an indicator variable that takes on the value 1 if the individual's preferred party won the county election. When $U_i < \bar{U}$, the agent will relocate to a new location.
+ 
+ \subsection{UK: First-past-the-post with several parties}
+ In this model we add a third party to our society, so that agents have the option to vote for either Left, Right, or Center. The four agents therefore now split their votes between the three parties such that the two more moderate types in the middle both vote for the center party. This implies that the center party has a left and a right wing, whereas the two parties on the edges are more homogeneous in the sense that only one type will want to vote for them. We maintain the same distribution of types as in the case of the US elections, i.e. 33\% right-wing, 17\% center-right, 17\% center-left, and 33\% left. Therefore, 33\% of the individuals in the model society vote for the right party, 33\% vote for the left party, and in total 34\% vote for the center party. \\
+ While this may accurately reflect the real-world situation of political types in the UK, we would like to capture a feature of this electoral system: Compared to the US, elections in the UK usually feature more than two parties that obtain a significant share of votes. At the same time, they maintain the first-past-the-post principle, which implies that a party in the UK only has to obtain the relative majority of votes, and not necessarily an absolute majority. From this follows that, compared to the US, less agents tend to find themselves represented by the party they voted for in the elections.\footnote{This of course requires that the party landscape reflects the real preferences of citizens. One may doubt that this is always the case in reality. However, since we only look at fully developed democracies, we assume that parties exist according to the real preferences of people.} For instance, a parts could win with 34\% of votes when the other two parties each obtained 33\% of votes each. This means that only 34\% of agents in this county would get utility from the election outcome while 66\% have no utility from this political situation. In the US, the maximum that does not feel represented will always be at most 50\%. It may therefore be more likely that agents in the UK model move, because overall less individuals will get the election utility which will therefore make it more difficult to reach the threshold utility for being happy.
+ The utility function for the individual in the UK model society is the same as in equation (1).
 
-\subsection{\textcolor{red}{First-past-the-post with several parties}}
-In this model we add a third party to our society. The four agents are now splitted between the three parties. The elections and the individual utility functions are identical to the ones used in the model above. 
-\subsection{Instant run-off voting} 
-In our society with instant run-off voting we have four parties, arranged on a right-left political scale. Each of our four different agents then ranks its preferences in the election. The two agent types on the extremes (farthest to the right or farthest to the left on the political axis) naturally rank their political choices accordingly. The two types in the middle, leaning either right or left, rank the extreme type of their political camp as their second choice. If any party gets more than 50 per cent of the top rank votes this party wins, if not, the party with the smallest amount of top rank votes is elimaned and the second rank votes from these ballots are counted to the election. This procedure continues until a party gets more than 50 per cent of the votes. \textcolor{red}{If the voting count is 50-50...}
+\subsection{Australia: Instant run-off voting} 
+ In our society with instant run-off voting, first-order preferences are the same as in the UK model: Four types vote for three different party, where the two moderate types vote for the center. The distribution of types is the same as in the other simulations. \\
+ The difference is that we now have a different election rule where second-order preferences matter: If no party gains the absolute majority in the first round, the second preference of the agents who voted for the party with the least votes is taken into account and these votes are added to the two other parties. Let us consider an example where the election outcome is such that no party reaches absolute majority and the center party gained the least votes. In this case, the center party voters, who have submitted their second-order preferences a long with their first preference, are revisited: Moderate right-wing agents now vote for the right party and moderate left-wingers submit their vote for the left party. Their votes are added to the number of votes the left and right party had obtained in the first round. Since one party has been eliminated, there are only two parties left now and one must obtain at least 50\% of votes in the second round. This principle is applied no matter what party initially gained the least votes: If the right party or center party are the least popular, their voters will prefer the center party as their second vote. \\
+ We assume that agents whose second-order preference was counted in the election get a lower utility from the outcome if that second rank won than when their first ranked preference wins. This a is reflected in a utility function that is now slightly different than in the other societies:
+  
+ \begin{equation}
+ U_i=t_{same_i}+\alpha \, t_{similar_i}+\gamma \, election_{1win_c} + 0.5 \, \gamma \, election_{2win_c}
+ \end{equation}
+ 
+ where $t_{same}$ and $t_{similar}$ are defined as before. Agents get utility $\gamma$ if their top preferred party wins the election and $0.5 \gamma$ if their favorite party gains the least votes in the first round but their second-order preference wins the election overall.
+ The Australian system implies that compared to the UK system, more agents should feel somewhat represented by the electoral outcome: Since they get to submit a list of preferences such that they can still influence their local election if they like the least popular party most, it is more likely that they will gain at least some utility from the outcome.
+  %Each of our four different agents then ranks its preferences in the election. The two agent types on the extremes (farthest to the right or farthest to the left on the political axis) naturally rank their political choices accordingly. The two types in the middle, leaning either right or left, rank the extreme type of their political camp as their second choice. If any party gets more than 50 per cent of the top rank votes this party wins, if not, the party with the smallest amount of top rank votes is elimaned and the second rank votes from these ballots are counted to the election. This procedure continues until a party gets more than 50 per cent of the votes. \textcolor{red}{If the voting count is 50-50...}
 
 %*******************************************************************************************************************************************************************
 %*******************************************************************************************************************************************************************
 
-\section{\label{sec_strat}Estimation Strategy}
+\section{\label{sec_res}Analysis}
+We run the model 100 times. Each time the model runs 100 iterations (obviously, the iterations will stop, should all agents have found a neighbourhood in which they are satisfied). The mean values of each step for each different model are shown in figures 1 through 8. In total we run the model 7 times, that is, we use 7 different combinations of parameter values. Our baseline model uses the middle values for the parameters, i.e. the weight of living with likeminded neighbours is set to 0.5, the weight on election is set to 1 and the threshold utility is set to 5. In the other 6 runs we vary one parameter value at the time, either up or down, while keeping the remainding two parameter values at the baseline, "middle", level. The different parameter values are shown in table 1. We evaluate the model on three measures: "Information Value", "Share of Happy Agents" and "Share of Segregated Agents". The "Information Value" measures how much the counties differ from each other. If all counties have similar shares of the different agent types the "Information Value" is low, if the counties differ alot (and thus are more segregated) the value is high. The formula for the "Information Value" is as follows: \newline \newline
+$$\sum_{m=1}^{M}\sum_{j=1}^{J}\frac{t_j}{TE}\pi_{jm}ln\frac{\pi_{jm}}{\pi_m}$$, where M is the number of agent types, J is the number of counties, T is the total number of agents, E$=\sum_{m=1}^{M}\pi_m ln(\frac{1}{\pi_m})$, i.e. \textcolor{red}{Entropy??}, $\pi_{jm}$ is the proportion of agent type $m$ living in county $j$ and $\pi_m$ is the proportion of agent type $m$. This formula for measuring segregation is used by Reardon and Firebaugh (2002). 
 
+\begin{table}[ht]
+\centering
+\caption{Utility model, parameter values}
+\begin{tabular}{llll}
+  \hline
+Parameter values & Neighbourhood & $\gamma$, Election & Threshold \\ 
+  \hline \hline
+Low & 0.25 & 0.5 & 4 \\ 
+  Middle & 0.5 & 1 & 5 \\ 
+  High & 0.75 & 1.5 & 6 \\ \hline
+   \hline
+\end{tabular}
+\end{table}
 
-%*******************************************************************************************************************************************************************
-%*******************************************************************************************************************************************************************
+Figure 1 shows the three model measurements for the baseline model ( \textcolor{red}{why is "share of happy" different from the middle graph in the three different varying utility parameters graphs??}). It is clear that the society with a first-past-the-post with several parties election system (from here on "UK"), is most segregated. When it comes to the share of happy agents UK and US seem to converge. That the UK is not also the most happy society, in a setting where a certain amount of segregation leads to agent happiness, can be explained by the fact that there are three parties in the UK and the consequently even though the society as a whole is more segragated than in the US, less agents will be represented politically and they will thus derive less utility from the election result. Figure 2 breaks down the segregation generated by the baseline model into the agent groups. Not surprisingly, the UK sees the highest levels of group segregation. Also the American and Australian agent groups show an expected pattern. Naturally, the two political extremes can and will segregate themselves. The center agents in the US cannot live in a county where there party rules and will thus to a larger extent live among agents who do not share their center ideology. In Australia, on the other hand, the center parties can rule, which is why we see that the two center groups are more segregated in Australia than in the US; it will simply be more attractive for a center agent to live with other center agents. \newline \newline
+Figures 3 through 8 show the same two graphs for the parameter value variations. The relative relation between the three countries in terms of degree of segregation remains stable for the different parameter values. Figures 4 and 6 supports the aggregate findings that although it is generally less segregated than the US and the UK, Australia sees a relatively higher of segregation among the center groups. When varying the election paramater value from 1 to 1.5 we see that the share of happy agents becomes higher in Australia than in the US (Figure 3). The reason for this can be inferred from Figure 4: the relatively bigger importance of elections means that Australia, where all parties can win elections, will see more movements from the agents, escpecially the center ones, and in the end more segregation, which in our model will lead to a greater share of happy agents. In Figures 5 and 6 we see that the level of segregation is unaffected by changes in the neighbourhood utility parameter value. This makes sense, sinse the utility derived from like-minded neighbours is the same for all three societies. When we vary the threshold utility from 5 to 4 Australia becomes relatively (and absolutely) more segregated. This is due to the same mechanism that led to more segregation when the importance of elections increased, namely that when the agents move more easily the probability that the Australian center agents will find their likes and creating an election winning firmly segregated county increases. The effect of more easily moving agents is smaller for the US and the UK since they have fewer parties. In Figure 8 we can see that the increasing segregation in Australia is indeed driven by the increasingly segregated center agents.        
 
-\section{\label{sec_data}Data}
-
-
-%*******************************************************************************************************************************************************************
-%*******************************************************************************************************************************************************************
-
-\section{\label{sec_res}Results}
-We run the model 100 iterations (obviously, the iterations will stop, should all agents have found a neighbourhood in which they are satisfied). The farthest most left graph of figure 1 shows the share of happy agents through the 100 iterations for all three societies. As we can see, the two societies with first-past-the post election systems ("US" and "UK") fare a lot better than the instant run-off society ("Aus"). 
 \begin{figure}[bp!]
 \centering
-\caption{all agg ratios}
+\caption{Aggregate Ratios}
 \includegraphics[height=10cm,width=16cm]{all_agg_ratios.pdf}
 \end{figure}
 
 \begin{figure}[bp!]
 \centering
-\caption{all grp ratios}
+\caption{Group Segregation}
 \includegraphics[height=10cm,width=16cm]{all_grp_ratios.pdf}
 \end{figure}
 
-\begin{table}[ht]
+\begin{figure}[bp!]
 \centering
-\caption{table}
-\begin{tabular}{llll}
-  \hline
-Steps & Country & Happy & Segregated \\ 
-  \hline \hline
-25 & AUS & 16.99\% & 7.93\% \\ 
-  25 & UK & 35.28\% & 18.48\% \\ 
-  25 & US & 48.95\% & 19.81\% \\ \hline
-  50 & AUS & 26.98\% & 16.82\% \\ 
-  50 & UK & 51.70\% & 33.51\% \\ 
-  50 & US & 61.12\% & 30.99\% \\  \hline
-  75 & AUS & 34.00\% & 22.03\% \\ 
-  75 & UK & 62.66\% & 43.51\% \\ 
-  75 & US & 68.16\% & 37.00\% \\  \hline
-  100 & AUS & 37.14\% & 24.99\% \\ 
-  100 & UK & 70.14\% & 50.69\% \\ 
-  100 & US & 71.93\% & 40.47\% \\ 
-   \hline
-\end{tabular}
-\end{table}
+\caption{Aggregate Ratios and Election Utility}
+\includegraphics[height=10cm,width=16cm]{all_el_agg_ratios.pdf}
+\end{figure}
 
+\begin{figure}[bp!]
+\centering
+\caption{Group Segregation and Election Utility}
+\includegraphics[height=10cm,width=16cm]{all_el_grp_ratios.pdf}
+\end{figure}
+
+\begin{figure}[bp!]
+\centering
+\caption{Aggregate Ratios and Neighbourhood Utility}
+\includegraphics[height=10cm,width=16cm]{all_nb_agg_ratios.pdf}
+\end{figure}
+
+\begin{figure}[bp!]
+\centering
+\caption{Group Segregation and Neighbourhood Utility}
+\includegraphics[height=10cm,width=16cm]{all_nb_grp_ratios.pdf}
+\end{figure}
+
+\begin{figure}[bp!]
+\centering
+\caption{Aggregate Ratios and Threshold Utility}
+\includegraphics[height=10cm,width=16cm]{all_th_agg_ratios.pdf}
+\end{figure}
+
+\begin{figure}[bp!]
+\centering
+\caption{Group Segregation and Threshold Utility}
+\includegraphics[height=10cm,width=16cm]{all_th_grp_ratios.pdf}
+\end{figure}
 
 
 %*******************************************************************************************************************************************************************
@@ -194,18 +236,7 @@ BUSCH ET AL. (2014):`` Places and Preferences: A Longitudinal Analysis of Self-S
 \noindent TAM CHO, W. K., GIMPEL, J. G. AND HUI, I. S (2012): ``Voter Migration and the Geographic Sorting of the
 American Electorate,'' \textit{Annals of the Association of American Geographers}, DOI:10.1080/00045608.2012.720229.
  
-
-\noindent ANGRIST, J. D., AND J. PISCHKE (2009): \textit{Mostly Harmless Econometrics: An Empiricist's Companion}. Princeton University Press.
-    
-\noindent KENNEDY, P. (2005): ``Oh No! I Got the Wrong Sign! What Should I Do?,'' \textit{Journal of Economic Education}, 36, 77--92.
-    
-\noindent LEAMER, E. E. (1975): ```Explaining Your Results' as Access-Biased Memory,'' \textit{Journal of the American Statistical Association}, 70, 88--93.
-    
-\noindent LEAMER, E. E. (1983): ``Let's Take the Con Out of Econometrics,'' \textit{American Economic Review}, 73, 31--43.
-    
-\noindent SALA-I-MARTIN, X. X. (1997): ``I Just Ran Two Million Regressions,'' \textit{American Economic Review}, 87, 178--183.
-
-\noindent WOOLDRIDGE, J. M. (2008): \textit{Introductory Econometrics: A Modern Approach}. South-Western Cengage Learning.
+\noindent REARDON, S. F. and FIREBAUGH, G. (2002):``Measures of Multigroup Segregation," \textit{Sociological Methodology} 32: 33-67, DOI: 10.1111/1467-9531.00110. 
 
 %*******************************************************************************************************************************************************************
 %*******************************************************************************************************************************************************************
