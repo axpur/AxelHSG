@@ -410,19 +410,6 @@ pdf("Plots/all_el_grp_ratios.pdf")
 all_el_grp_ratios_plot
 dev.off()
 
-# Different kind of plot (Replication on the original one in Mesa example):
-plot_data <- all_agg_ratios %>%
-  ungroup() %>%
-  group_by(run, cnt) %>%
-  filter(steps == 99)
-
-point_plot <- ggplot(plot_data, aes(x = cnt, y = share_happy, color = cnt)) + geom_point(alpha = 0.6) + theme_bw() + 
-  ggtitle("Replication of graph in original notes") + scale_y_continuous(limits = c(0, 1)) + xlab("Country")
-
-pdf("Plots/test_plot.pdf", width = 7, height = 5)
-point_plot
-dev.off()
-
 ## Baseline case tables
 # Aggregate ratios
 all_agg_ratios_table <- all_agg_ratios %>%
@@ -566,3 +553,68 @@ print(xtable(el_grp_ratios_table, type = "latex"), include.rownames = F, file = 
 
 step_final <- Sys.time()
 print(step_final - start_time)
+
+### Box plots for visualizing variation in outcomes
+# Aggregate measures
+box_plot_agg <- all_agg_ratios %>%
+  ungroup() %>%
+  group_by(run, cnt) %>%
+  filter(steps == 100) %>%
+  gather(key = "Ratios", value = "Value", info_seg:share_seg) %>%
+  ggplot(aes(x = cnt, y = Value, fill = cnt)) + geom_boxplot(alpha = 0.6) + theme_bw() + 
+    ggtitle("Variation in Segregation Measures (After 100 Steps)") + scale_y_continuous(limits = c(0, 1)) + 
+    xlab("Country") + facet_grid(~Ratios, labeller = labeller(Ratios = as_labeller(ratio_agg_names))) + 
+    scale_fill_brewer(palette = "Set1") + theme_bw() + theme(legend.position = "bottom", legend.title= element_blank())
+
+pdf("Plots/box_plot_agg.pdf")
+box_plot_agg
+dev.off()
+
+# Chnges by Utility Threshold
+box_plot_th <- all_th_agg_ratios %>%
+  ungroup() %>%
+  group_by(run, cnt) %>%
+  filter(steps == 100) %>%
+  gather(key = "Ratios", value = "Value", info_seg:share_seg) %>%
+  ggplot(aes(x = as.factor(cases), y = Value, fill = as.factor(cnt))) + geom_boxplot(alpha = 0.6) +
+  ggtitle("Variation in Segregation Measures (After 100 Steps)") + scale_y_continuous(limits = c(0, 1)) + 
+  xlab("Varying Utility Threshold") + scale_fill_brewer(palette = "Set1") + 
+  theme_bw() + theme(legend.position = "bottom", legend.title= element_blank()) +
+  facet_grid(cnt~Ratios, labeller = labeller(Ratios = as_labeller(ratio_agg_names)))
+
+pdf("Plots/box_plot_th.pdf")
+box_plot_th
+dev.off()
+
+# Chnges by Election Utility
+box_plot_el <- all_el_agg_ratios %>%
+  ungroup() %>%
+  group_by(run, cnt) %>%
+  filter(steps == 100) %>%
+  gather(key = "Ratios", value = "Value", info_seg:share_seg) %>%
+  ggplot(aes(x = as.factor(cases), y = Value, fill = as.factor(cnt))) + geom_boxplot(alpha = 0.6) +
+  ggtitle("Variation in Segregation Measures (After 100 Steps)") + scale_y_continuous(limits = c(0, 1)) + 
+  xlab("Varying Election Utility") + scale_fill_brewer(palette = "Set1") + 
+  theme_bw() + theme(legend.position = "bottom", legend.title= element_blank()) +
+  facet_grid(cnt~Ratios, labeller = labeller(Ratios = as_labeller(ratio_agg_names)))
+
+pdf("Plots/box_plot_el.pdf")
+box_plot_el
+dev.off()
+
+
+# Chnges by Neighnorhood Utility
+box_plot_nb <- all_nb_agg_ratios %>%
+  ungroup() %>%
+  group_by(run, cnt) %>%
+  filter(steps == 100) %>%
+  gather(key = "Ratios", value = "Value", info_seg:share_seg) %>%
+  ggplot(aes(x = as.factor(cases), y = Value, fill = as.factor(cnt))) + geom_boxplot(alpha = 0.6) +
+  ggtitle("Variation in Segregation Measures (After 100 Steps)") + scale_y_continuous(limits = c(0, 1)) + 
+  xlab("Varying Neighborhood Threshold") + scale_fill_brewer(palette = "Set1") + 
+  theme_bw() + theme(legend.position = "bottom", legend.title= element_blank()) +
+  facet_grid(cnt~Ratios, labeller = labeller(Ratios = as_labeller(ratio_agg_names)))
+
+pdf("Plots/box_plot_nb.pdf")
+box_plot_nb
+dev.off()
