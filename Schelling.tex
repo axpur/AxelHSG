@@ -4,6 +4,7 @@
 %some important packages
 \usepackage[T1]{fontenc}					%package to set font encoding
 \usepackage[latin1]{inputenc}				%package to set input encoding
+\usepackage[section]{placeins}
 
 %\usepackage[ngerman]{babel} 				%option for paper in german
 \usepackage{graphicx} 						%package to include graphics
@@ -22,8 +23,8 @@
 \usepackage{multirow}           					%package to combine cells in tables
 \usepackage{eurosym} 						%package to get eurosymbol per \euro
 \usepackage{verbatim}						% package for verbatim evironment
-\usepackage{float}							%package to define position of tables and figures
-
+\usepackage{float}						%package to define position of tables and figures
+\usepackage{color}
 %adjustment of page parameters
 \usepackage[left=3cm, right=2cm, top=2.5cm, bottom=2.5cm]{geometry}
 \renewcommand{\baselinestretch}{1.5} 		%line spacing is set to 1.5
@@ -31,7 +32,7 @@
 
 
 %title
-\title{{\Large Do voting systems affect segregation? - An agent-based modelling approach\footnote{This paper was written as a term paper in the course XYZ at the Chair of Economics VI: Empirical Economics, Prof. Dr. Marion Larch, University of Bayreuth.}}\\
+\title{{\Large Do voting systems affect segregation\footnote{This paper was written as a term paper in the course XYZ at the Chair of Economics VI: Empirical Economics, Prof. Dr. Mario Larch, University of Bayreuth.}}\\
 \vspace{3mm}{\Large Term Paper, Software Engineering for Economists}%options: BA Thesis, MA Thesis etc.
 }
 
@@ -87,33 +88,109 @@
 
 \section{\label{sec_intro}Introduction}
 
-%*******************************************************************************************************************************************************************
-%*******************************************************************************************************************************************************************
-
-\section{The Model}\label{sec_model}
-
+In 1969 Thomas Schelling published his influential article "Models of Segregation" in \textit{The American Economic Review}. In the article Schelling uses an agent-based model to show that although \textit{individuals} might have high tolerance towards other races the aggregated outcome will still be clear ethnic segregation. Ethnicity is, of course, not the only segregating factor in societies. In the book "The Big Sort" (2008), the journalist Bill Bishop and the sociologist and statistician Robert Cushing argue that Americans now increasingly segregate themselves also along political affiliations. In their arguing, Bishop and Cushing point to the fact that the number of counties that was won by a landslide by either the Republicans or the Democrats has increased dramatically since the 1970s. 
+\newline In this short paper we will use an agent-based model similar to Schelling's to find out whether the magnitude of political segregation depends is affected by the type of voting system in a country. More specifically we will simulate political segregation using three different election models: first-past-the-post with two parties (e.g. USA), first-past-the-post with several parties (e.g. UK) and instant-runoff voting (e.g. Australia). This brief paper begins with a literature review, in which we highlight papers that discuss segregation, or geographical sorting, based on political opinions. We then explain our agent-based model and how it slightly varies depending on the election system imposed. Finally, we report and discuss our results.
 
 
 %*******************************************************************************************************************************************************************
 %*******************************************************************************************************************************************************************
+\section{Literature Review}\label{lit}
+There is a plethora of articles that look into the reasons as to why people move and how these individual decisions combine to form larger migration patterns. The number of papers that explicitly investigate the extent to which people move and live according to political convictions is, however, considerably smaller. Nonetheless, there are several papers that deal with this issue in an American context and a couple of papers that use British data. 
+\newline Buscha et al. (2014) use data from the British Household Panel Survey to track individuals' political preferences and place of residence over a eighteen-year period. They use the panel data set to regress political preferences on the type of move undertaken in the last five years (from a labour constituency to a conservative constituency, from a liberal constituency to a labour constituency etc.) as a well as a number of control variables (e.g. sex, age, income). Their findings suggest that there is both a "political assimilation effect" (p. 546) (i.e. that people tend to adapt their political views to the majority views of the constituency they are moving in to) and a selection into areas (i.e. people with a certain political opinion tend to move into areas where the majority shares this opinion). This self selection effect does, however, disappear almost completely when the authors control for individual socio-economics characteristics, leading them to draw the conclusion that the political segregation is mainly a consequence of the fact that people who share socio-economic background also tend to share  political conviction.   
+\newline Tam Cho, Gimpel and Hui (2012) track migration flows (i.e. moving from one ZIP code to another within the state or moving to an adjacent state) in seven US states between 2004 and 2008. They use hierarchical linear models, regressing change in partisan spread (i.e. the difference between Republican and Democrat voting registration rates) between the district the individual is moving from and the district the individual is moving to on a number of variables, including age, party affiliation and median income change. Like Buscha et al., Tam Cho et al. find that it is the economic factors that are most decisive when people decide where to move. They do, however, also find evidence that point to partisan composition of the moving destination being a factor in people's choice of new homes. 
+\newline In his article "Migration and Sorting in the American Electorate: Evidence from the 2006 Cooperative Congressional Election Study" (2011) Ian McDonald matches election survey data with the US Postal Service's change-of-address database to examine whether an individual's ideological preference predicts the individual's moving destination (defined as congressional district). McDonald estimates a logit regression with the migrant's destination district partisanship as dependent variable and ideology and the political majority in the origin district, as well as covariates, as independent variables. McDonald finds that the migrant's new home district is more likely to be an ideological match than the district which the migrant left, indicating that Americans do indeed take the political views of their future neighbours into consideration when moving. 
 
-\section{\label{sec_strat}Estimation Strategy}
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
+\section{\label{model}The Election Models}
+To answer the question how different voting systems influence the degree of political segregation in a country, we employ an agent-based model. Our hypothesis is that voting systems introduce different degrees of political representation, which will affect the probability with which agents will move. In this section, we present the general setup of our model as well as the individual electoral systems that we will simulate in the subsequent analysis.\\%necessary here? - should be in the intro I think\footnote{An agent-based model is, in short, a model where you simulate the actions of autonomous individual agents and evaluate the effects that these individual actions have on the system as a whole.}.
+Note that all model societies are comprised of four types that correspond to different preferences on the political spectrum.\footnote{This is for reasons of comparability between societies. We set The proportion of types to 33\% for the types on the edges of the political spectrum and to 17\% for each of the two moderate types.} Agents obtain utility from having neighbors that are exactly their type but can also gain some utility from people that have voted for the same party (as their first-order preference) but are a different type. In addition to benefiting from having similar neighbors, agents also gain when their party has won the local elections. How much weight they put on the election outcome will be varied in the simulation.
+Thus, we construct the individuals' utility function such that it consists of the utility derived from the number of like-minded neighbors and the utility derived from living in a county that is ruled by the party you favor.
+We impose a threshold utility that specifies how many units of utility the agents must at least have from their neighbors and the elections outcome to be happy. If the agent's utility is below this threshold the agent will move (and thus leave their house vacant), randomly, into a house until they find a place that gives them a utility that is above the threshold level. Initially, agents are randomly assigned to houses in the different local areas. We set 30\% of houses to be empty to leave some space for individuals to move.
+ In our simulations, our society consists of $33\times33$-houses square. Each county is $11\times11$ houses (our society thus consists of nine counties) and each neighborhood is $3\times3$ houses, where the agent whose neighborhood it is naturally lives in the middle of this $3\times3$ matrix. (In our model we also let northern and southern, and eastern and western, borders of the square meet, so that the agents living on the edge of the square are also completely surrounded by houses, and thus living in neighborhoods.)
+We then run the simulations until all agents have found a house in which their utility is above the threshold value.
+
+\subsection{USA: First-past-the-post with two parties}
+For the US model society, one can think of the four types of agents as republicans, moderate republicans, democrats and moderate democrats. The society is then divided into smaller local areas, counties 
+%not states?
+, such that each individual lives in a county that is either republican or democrat depending on the majority view in the county. Our individuals, 33\% republicans and democrats respectively and 17\% moderate republicans and moderate democrats, respectively. %, are initially randomly assigned to the houses in the different counties. A set \textcolor{red}{20} per cent of the houses are also empty, such that the individuals can move.
+Thus, in the whole society there will be 50\% of agents voting for each party. Of course, this distribution can vary quite significantly across counties, so that it is a priori not clear, whether a county will be blue or red.
+The electoral system of the US is such that there are two parties\footnote{We abstract away from small parties that exist in the US in reality.} that compete in local elections. The party that gets the majority of votes (here in both absolute and relative terms), wins the county. All types will want to vote for one of the two parties: Republicans and moderate republicans vote for the same party and democrats and moderate republicans together vote for the other party. Agents gain election utility if and only if they live in a county where their political view is held by the majority of the individuals.  Formally, we can write individuals' utility function as follows:
+
+
+\begin{equation}
+U_i=t_{same_i}+\alpha \, t_{similar_i}+\gamma \, election_{win_c}
+\end{equation}
+
+where $t_{same}$ is the number of neighbors, i.e. agents in adjacent parts of the grid, that have the same type as the individual. $t_{similar}$ is the number of neighbors that voted for the same party but are not the same type. For example, a republican type derives some utility from living next to a moderate republican but possibly not as much as from living to someone who is also a pure republican. We set $\alpha$ to varying values in the analysis. Lastly, $election_{win}$ is an indicator variable that takes on the value 1 if the individual's preferred party won the county election. When $U_i < \bar{U}$, the agent will relocate to a new location.
+
+\subsection{UK: First-past-the-post with several parties}
+In this model we add a third party to our society, so that agents have the option to vote for either Left, Right, or Center. The four agents therefore now split their votes between the three parties such that the two more moderate types in the middle both vote for the center party. This implies that the center party has a left and a right wing, whereas the two parties on the edges are more homogeneous in the sense that only one type will want to vote for them. We maintain the same distribution of types as in the case of the US elections, i.e. 33\% right-wing, 17\% center-right, 17\% center-left, and 33\% left. Therefore, 33\% of the individuals in the model society vote for the right party, 33\% vote for the left party, and in total 34\% vote for the center party. \\
+While this may accurately reflect the real-world situation of political types in the UK, we would like to capture a feature of this electoral system: Compared to the US, elections in the UK usually feature more than two parties that obtain a significant share of votes. At the same time, they maintain the first-past-the-post principle, which implies that a party in the UK only has to obtain the relative majority of votes, and not necessarily an absolute majority. From this follows that, compared to the US, less agents tend to find themselves represented by the party they voted for in the elections.\footnote{This of course requires that the party landscape reflects the real preferences of citizens. One may doubt that this is always the case in reality. However, since we only look at fully developed democracies, we assume that parties exist according to the real preferences of people.} For instance, a parts could win with 34\% of votes when the other two parties each obtained 33\% of votes each. This means that only 34\% of agents in this county would get utility from the election outcome while 66\% have no utility from this political situation. In the US, the maximum that does not feel represented will always be at most 50\%. It may therefore be more likely that agents in the UK model move, because overall less individuals will get the election utility which will therefore make it more difficult to reach the threshold utility for being happy.
+The utility function for the individual in the UK model society is the same as in equation (1).
+
+
+\subsection{Australia: Instant run-off voting} 
+In our society with instant run-off voting, first-order preferences are the same as in the UK model: Four types vote for three different party, where the two moderate types vote for the center. The distribution of types is the same as in the other simulations. \\
+The difference is that we now have a different election rule where second-order preferences matter: If no party gains the absolute majority in the first round, the second preference of the agents who voted for the party with the least votes is taken into account and these votes are added to be two other parties. Let us consider an example where the election outcome is such that no party reaches absolute majority and the center party gained the least votes. In this case, the center party voters, who have submitted their second-order preferences a long with their first preference, are revisited: Moderate right-wing agents now vote for the right party and moderate left-wingers submit their vote for the left party. Their votes are added to the number of votes the left and right party had obtained in the first round. Since one party has been eliminated, there are only two parties left now and one must obtain at least 50\% of votes in the second round. This principle is applied no matter what party initially gained the least votes: If the right party or center party are the least popular, their voters will prefer the center party as their second vote. \\
+We assume that agents whose second-order preference was counted in the election get a lower utility from the outcome if that second rank won than when their first ranked preference wins. This a is reflected in a utility function that is now slightly different than in the other societies:
+
+\begin{equation}
+U_i=t_{same_i}+\alpha \, t_{similar_i}+\gamma \, election_{1win_c} + 0.5 \, \gamma \, election_{2win_c}
+\end{equation}
+
+where $t_{same}$ and $t_{similar}$ are defined as before. Agents get utility $\gamma$ if their top preferred party wins the election and $0.5 \gamma$ if their favorite party gains the least votes in the first round but their second-order preference wins the election overall.
+The Australian system implies that compared to the UK system, more agents should feel somewhat represented by the electoral outcome: Since they get to submit a list of preferences such that they can still influence their local election if they like the least popular party most, it is more likely that they will gain at least some utility from the outcome.
+ %Each of our four different agents then ranks its preferences in the election. The two agent types on the extremes (farthest to the right or farthest to the left on the political axis) naturally rank their political choices accordingly. The two types in the middle, leaning either right or left, rank the extreme type of their political camp as their second choice. If any party gets more than 50 per cent of the top rank votes this party wins, if not, the party with the smallest amount of top rank votes is elimaned and the second rank votes from these ballots are counted to the election. This procedure continues until a party gets more than 50 per cent of the votes. \textcolor{red}{If the voting count is 50-50...}
+
+%*******************************************************************************************************************************************************************
+%*******************************************************************************************************************************************************************
 
 
 %*******************************************************************************************************************************************************************
 %*******************************************************************************************************************************************************************
 
-\section{\label{sec_data}Data}
 
 
 %*******************************************************************************************************************************************************************
 %*******************************************************************************************************************************************************************
 
-\section{\label{sec_res}Results}
+\section{\label{sec_res}Analysis}
+We run the model 100 iterations (obviously, the iterations will stop, should all agents have found a neighborhood in which they are satisfied). The farthest most left graph of figure 1 shows the share of happy agents through the 100 iterations for all three societies. As we can see, the two societies with first-past-the post election systems ("US" and "UK") fare a lot better than the instant run-off society ("AUS"). 
+%\begin{figure}[bp!]
+%\centering
+%\caption{all agg ratios}
+%\includegraphics[height=10cm,width=16cm]{all_agg_ratios.pdf}
+%\end{figure}
 
+%\begin{figure}[bp!]
+%\centering
+%\caption{all grp ratios}
+%\includegraphics[height=10cm,width=16cm]{all_grp_ratios.pdf}
+%\end{figure}
 
-
-
+\begin{table}[ht]
+\centering
+\caption{table}
+\begin{tabular}{llll}
+  \hline
+Steps & Country & Happy & Segregated \\ 
+  \hline \hline
+25 & AUS & 16.99\% & 7.93\% \\ 
+  25 & UK & 35.28\% & 18.48\% \\ 
+  25 & US & 48.95\% & 19.81\% \\ \hline
+  50 & AUS & 26.98\% & 16.82\% \\ 
+  50 & UK & 51.70\% & 33.51\% \\ 
+  50 & US & 61.12\% & 30.99\% \\  \hline
+  75 & AUS & 34.00\% & 22.03\% \\ 
+  75 & UK & 62.66\% & 43.51\% \\ 
+  75 & US & 68.16\% & 37.00\% \\  \hline
+  100 & AUS & 37.14\% & 24.99\% \\ 
+  100 & UK & 70.14\% & 50.69\% \\ 
+  100 & US & 71.93\% & 40.47\% \\ 
+   \hline
+\end{tabular}
+\end{table}
 
 
 
@@ -131,22 +208,33 @@
 \newpage
 
 %Version 1
-%\bibliographystyle{econometrica}
-%\bibliography{bibliography}
+\nocite{*}
+
+\bibliographystyle{econometrica}
+\bibliography{Schelling}
 
 %Version 2
-\section*{\label{sec_ref}References}
-ANGRIST, J. D., AND J. PISCHKE (2009): \textit{Mostly Harmless Econometrics: An Empiricist's Companion}. Princeton University Press.
-    
-\noindent KENNEDY, P. (2005): ``Oh No! I Got the Wrong Sign! What Should I Do?,'' \textit{Journal of Economic Education}, 36, 77--92.
-    
-\noindent LEAMER, E. E. (1975): ```Explaining Your Results' as Access-Biased Memory,'' \textit{Journal of the American Statistical Association}, 70, 88--93.
-    
-\noindent LEAMER, E. E. (1983): ``Let's Take the Con Out of Econometrics,'' \textit{American Economic Review}, 73, 31--43.
-    
-\noindent SALA-I-MARTIN, X. X. (1997): ``I Just Ran Two Million Regressions,'' \textit{American Economic Review}, 87, 178--183.
+%\section*{\label{sec_ref}References}
 
-\noindent WOOLDRIDGE, J. M. (2008): \textit{Introductory Econometrics: A Modern Approach}. South-Western Cengage Learning.
+%BUSCH ET AL. (2014):`` Places and Preferences: A Longitudinal Analysis of Self-Selection and Contextual Effects,'' \textit{British Journal of Political Science} 46, 529-550.
+
+%\noindent MCDONALD, I. (2011):`` Migration and Sorting in the American Electorate: Evidence From the 2006 Cooperative Congressional Election Study,'' \textit{American Politics Research} 39(3), 512-533.
+
+%\noindent TAM CHO, W. K., GIMPEL, J. G. AND HUI, I. S (2012): ``Voter Migration and the Geographic Sorting of the
+%American Electorate,'' \textit{Annals of the Association of American Geographers}, DOI:10.1080/00045608.2012.720229.
+ 
+
+%\noindent ANGRIST, J. D., AND J. PISCHKE (2009): \textit{Mostly Harmless Econometrics: An Empiricist's Companion}. Princeton University Press.
+    
+%\noindent KENNEDY, P. (2005): ``Oh No! I Got the Wrong Sign! What Should I Do?,'' \textit{Journal of Economic Education}, 36, 77--92.
+    
+%\noindent LEAMER, E. E. (1975): ```Explaining Your Results' as Access-Biased Memory,'' \textit{Journal of the American Statistical Association}, 70, 88--93.
+    
+%\noindent LEAMER, E. E. (1983): ``Let's Take the Con Out of Econometrics,'' \textit{American Economic Review}, 73, 31--43.
+    
+%\noindent SALA-I-MARTIN, X. X. (1997): ``I Just Ran Two Million Regressions,'' \textit{American Economic Review}, 87, 178--183.
+
+%\noindent WOOLDRIDGE, J. M. (2008): \textit{Introductory Econometrics: A Modern Approach}. South-Western Cengage Learning.
 
 %*******************************************************************************************************************************************************************
 %*******************************************************************************************************************************************************************
