@@ -70,6 +70,9 @@ complete_calc <- function(data_out){
            share_happy = happy/total,
            share_seg = seg_agents/total) %>%
     ungroup()
+    # group_by(run, steps, loc, cases, type) %>%
+    # mutate(elec_swap = ifelse(elect == lag(elect), 0, 1)) %>%
+    # ungroup()
   
   # Calculating seggregation measures. Names correspond to the numbering in Notebook files
   data_ratios1 <- data_calc1 %>%
@@ -100,7 +103,18 @@ complete_calc <- function(data_out){
     group_by(run, type, steps, cnt, cases) %>%
     summarize(grp_info = sum((loc_total/(total*e_grp))*pi_jm*log(pi_jm_log/pi_m) + (loc_total/(total*e_grp))*pi_other_j*log(pi_other_j_log/pi_other)))
   
-  return(list(data_ratios1, data_ratios2, data_store))
+  data_calc3 <- data_store %>%
+    select(run, steps, loc, elect, cnt)
+  
+  data_calc3 <- data_calc3[!duplicated(data_calc3),]
+  
+  data_ratios3 <- data_calc3 %>%
+    arrange(run, loc, steps) %>%
+    group_by(run, loc) %>%
+    mutate(change_loc = ifelse(elect == lag(elect), 0, 1))
+  
+  
+  return(list(data_ratios1, data_ratios2, data_ratios3)) 
 }
 
 #### Libraries ####
@@ -685,4 +699,25 @@ box_plot_nb <- all_nb_agg_ratios %>%
 
 pdf("Plots/box_plot_nb.pdf")
 box_plot_nb
+dev.off()
+
+## Election changes calculations
+us_elec_ratios <- us_results[[3]]
+uk_elec_ratios <- uk_results[[3]]
+aus_elec_ratios <- aus_results[[3]]
+
+all_elec_ratios <- bind_rows(list(us_elec_ratios, uk_elec_ratios, aus_elec_ratios))
+all_elec_ratios$cnt <- factor(all_elec_ratios$cnt, levels = c("UK", "US", "AUS"))
+all_elec_ratios_adj <- all_elec_ratios %>%
+  filter(!is.na(change_loc)) %>%
+  group_by(steps, cnt) %>%
+  summarize(elec_ratio = mean(change_loc))
+
+election_plot <- ggplot(all_elec_ratios_adj, aes(x = steps, y = elec_ratio, color = cnt)) + geom_line(size = 1) +
+  scale_color_brewer(palette = "Set1") + xlab("Steps") + ylab("Fraction of Locations") +
+  ggtitle("Fraction of Locations That Have a Changing \nElection Outcome (Mean of 100 Runs)") +
+  theme_bw() + theme(legend.position = "bottom", legend.title = element_blank())
+
+pdf("Plots/election_plot.pdf")
+election_plot
 dev.off()
