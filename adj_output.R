@@ -113,6 +113,14 @@ data_us <- read.csv("data/out_us.csv", stringsAsFactors = F)
 data_uk <- read.csv("data/out_uk.csv", stringsAsFactors = F)
 data_aus <- read.csv("data/out_aus.csv", stringsAsFactors = F)
 
+data_us_1000 <- read.csv("data/out_us_1000.csv", stringsAsFactors = F)
+data_uk_1000 <- read.csv("data/out_uk_1000.csv", stringsAsFactors = F)
+data_aus_1000 <- read.csv("data/out_aus_1000.csv", stringsAsFactors = F)
+
+data_us_1000 <- data_us_1000[,-1]
+data_uk_1000 <- data_uk_1000[,-1]
+data_aus_1000 <- data_aus_1000[,-1]
+
 data_us_th <- read.csv("data/out_us_th.csv", stringsAsFactors = F)
 data_uk_th <- read.csv("data/out_uk_th.csv", stringsAsFactors = F)
 data_aus_th <- read.csv("data/out_aus_th.csv", stringsAsFactors = F)
@@ -140,6 +148,18 @@ print(Sys.time())
 
 aus_results <- complete_calc(data_out = data_aus)
 step3_time <- Sys.time()
+print(Sys.time())
+# Cleaning data for each country
+us_results_1000 <- complete_calc(data_out = data_us_1000)
+step1_time_1000 <- Sys.time()
+print(Sys.time())
+
+uk_results_1000 <- complete_calc(data_out = data_uk_1000)
+step2_time_1000 <- Sys.time()
+print(Sys.time())
+
+aus_results_1000 <- complete_calc(data_out = data_aus_1000)
+step3_time_1000 <- Sys.time()
 print(Sys.time())
 
 # 
@@ -194,6 +214,16 @@ uk_grp_ratios <- uk_results[[2]]
 aus_grp_ratios <- aus_results[[2]]
 
 # Calculating aggregate ratios
+us_agg_ratios_1000 <- us_results_1000[[1]]
+uk_agg_ratios_1000 <- uk_results_1000[[1]]
+aus_agg_ratios_1000 <- aus_results_1000[[1]]
+
+# Calculating group ratios
+us_grp_ratios_1000 <- us_results_1000[[2]]
+uk_grp_ratios_1000 <- uk_results_1000[[2]]
+aus_grp_ratios_1000 <- aus_results_1000[[2]]
+
+# Calculating aggregate ratios
 us_th_agg_ratios <- us_th_results[[1]]
 uk_th_agg_ratios <- uk_th_results[[1]]
 aus_th_agg_ratios <- aus_th_results[[1]]
@@ -229,6 +259,12 @@ all_agg_ratios$cnt <- factor(all_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 
 all_grp_ratios <- bind_rows(list(us_grp_ratios, uk_grp_ratios, aus_grp_ratios))
 all_grp_ratios$cnt <- factor(all_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
+
+all_agg_ratios_1000 <- bind_rows(list(us_agg_ratios_1000, uk_agg_ratios_1000, aus_agg_ratios_1000))
+all_agg_ratios_1000$cnt <- factor(all_agg_ratios_1000$cnt, levels = c("UK", "US", "AUS"))
+
+all_grp_ratios_1000 <- bind_rows(list(us_grp_ratios_1000, uk_grp_ratios_1000, aus_grp_ratios_1000))
+all_grp_ratios_1000$cnt <- factor(all_grp_ratios_1000$cnt, levels = c("UK", "US", "AUS"))
 
 all_th_agg_ratios <- bind_rows(list(us_th_agg_ratios, uk_th_agg_ratios, aus_th_agg_ratios))
 all_th_agg_ratios$cnt <- factor(all_th_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
@@ -291,6 +327,38 @@ all_grp_ratios_plot <- all_grp_ratios %>%
 
 pdf("Plots/all_grp_ratios.pdf")
 all_grp_ratios_plot
+dev.off()
+
+# 1000 step case
+all_agg_ratios_plot_1000 <- all_agg_ratios_1000 %>%
+  group_by(cnt, steps) %>%
+  summarize(info_seg = mean(info_seg),
+            share_happy = mean(share_happy),
+            share_seg = mean(share_seg)) %>%
+  gather(key = "Ratio", value = "Value", info_seg, share_happy, share_seg) %>%
+  ggplot(aes(x = steps, y = Value, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
+    geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+  ggtitle("Aggregate Ratios Over Steps (Mean of 10 Runs)") + 
+  facet_grid(~Ratio, labeller = as_labeller(ratio_agg_names)) + xlab("Steps") + 
+  scale_color_brewer(palette = "Set1")
+  
+
+pdf("Plots/all_agg_ratios_1000.pdf")
+all_agg_ratios_plot_1000
+dev.off()
+
+# Plotting group specific measures over steps and contrasting segregation across different types
+all_grp_ratios_plot_1000 <- all_grp_ratios_1000 %>%
+  group_by(cnt, steps, type) %>%
+  summarize(grp_info = mean(grp_info)) %>%
+  ggplot(aes(x = steps, y = grp_info, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
+    geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+    ggtitle("Group Segregation Over Steps (Mean of 10 Runs)") + 
+    facet_grid(~type, labeller = as_labeller(type_grp_names)) + xlab("Steps") + ylab("Group Information Value") +
+    scale_color_brewer(palette = "Set1")
+
+pdf("Plots/all_grp_ratios_1000.pdf")
+all_grp_ratios_plot_1000
 dev.off()
 
 # Plotting aggregate measures over steps and contrasting country cases
