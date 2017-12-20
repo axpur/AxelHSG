@@ -314,9 +314,9 @@ class SchellingModel_AUS(Model):
         for i in range(9):
             self.elections_center[i] = self.elections_center_1[i] + self.elections_center_0[i] #add center left and center right together
             self.elections_type_total[i] = self.elections_party0[i] + self.elections_party1[i] + self.elections_center[i]
-            
+
             if self.elections_type_total[i] == 0:
-                self.electios_type_total[i] = 1
+                self.electios_type_total[i] += 1
             #First stage
             #Check if one party has more than 50% of the votes
             if (self.elections_party1[i]/self.elections_type_total[i]) >= 0.5:
