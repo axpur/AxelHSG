@@ -151,7 +151,6 @@ agg_results_plotter <- function(agg_plot_data, cases){
       ggplot(aes(x = steps, y = Value, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
       geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
       xlab("Steps") + scale_color_brewer(palette = "Set1")
-      ggtitle("Aggregate Ratios with Varying Election Utility (Mean of 100 Runs)")
       
       return(agg_plot)
   } else {
@@ -163,7 +162,7 @@ agg_results_plotter <- function(agg_plot_data, cases){
       gather(key = "Ratio", value = "Value", info_seg, share_happy, share_seg) %>%
       ggplot(aes(x = steps, y = Value, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
       geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
-      ggtitle("Aggregate Ratios Over Steps") + 
+      ggtitle("Mean Aggregate Ratios Over Steps") + 
       facet_grid(~Ratio, labeller = as_labeller(ratio_agg_names)) + xlab("Steps") + 
       scale_color_brewer(palette = "Set1")
     
@@ -175,7 +174,7 @@ agg_results_plotter <- function(agg_plot_data, cases){
 grp_results_plotter <- function(grp_plot_data, cases){
   if (cases == T) {
     grp_plot <- grp_plot_data %>%
-      group_by(cnt, steps, type) %>%
+      group_by(cnt, steps, type, cases) %>%
       summarize(grp_info = mean(grp_info)) %>%
       ggplot(aes(x = steps, y = grp_info, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
       geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
@@ -189,7 +188,7 @@ grp_results_plotter <- function(grp_plot_data, cases){
       summarize(grp_info = mean(grp_info)) %>%
       ggplot(aes(x = steps, y = grp_info, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
       geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
-      ggtitle("Group Segregation Over Steps") + 
+      ggtitle("Mean Group Segregation Over Steps") + 
       facet_grid(~type, labeller = as_labeller(type_grp_names)) + xlab("Steps") + ylab("Group Information Value") +
       scale_color_brewer(palette = "Set1")
     
@@ -298,56 +297,6 @@ aus_el_results <- complete_calc(data_out = data_aus_el)
 step3_el_time <- Sys.time()
 print(Sys.time())
 
-# Calculating aggregate ratios
-us_agg_ratios <- us_results[[1]]
-uk_agg_ratios <- uk_results[[1]]
-aus_agg_ratios <- aus_results[[1]]
-
-# Calculating group ratios
-us_grp_ratios <- us_results[[2]]
-uk_grp_ratios <- uk_results[[2]]
-aus_grp_ratios <- aus_results[[2]]
-
-# Calculating aggregate ratios
-us_agg_ratios_1000 <- us_results_1000[[1]]
-uk_agg_ratios_1000 <- uk_results_1000[[1]]
-aus_agg_ratios_1000 <- aus_results_1000[[1]]
-
-# Calculating group ratios
-us_grp_ratios_1000 <- us_results_1000[[2]]
-uk_grp_ratios_1000 <- uk_results_1000[[2]]
-aus_grp_ratios_1000 <- aus_results_1000[[2]]
-
-# Calculating aggregate ratios
-us_th_agg_ratios <- us_th_results[[1]]
-uk_th_agg_ratios <- uk_th_results[[1]]
-aus_th_agg_ratios <- aus_th_results[[1]]
-
-# Calculating group ratios
-us_th_grp_ratios <- us_th_results[[2]]
-uk_th_grp_ratios <- uk_th_results[[2]]
-aus_th_grp_ratios <- aus_th_results[[2]]
-
-# Calculating aggregate ratios
-us_el_agg_ratios <- us_el_results[[1]]
-uk_el_agg_ratios <- uk_el_results[[1]]
-aus_el_agg_ratios <- aus_el_results[[1]]
-
-# Calculating group ratios
-us_el_grp_ratios <- us_el_results[[2]]
-uk_el_grp_ratios <- uk_el_results[[2]]
-aus_el_grp_ratios <- aus_el_results[[2]]
-
-# Calculating aggregate ratios
-us_nb_agg_ratios <- us_nb_results[[1]]
-uk_nb_agg_ratios <- uk_nb_results[[1]]
-aus_nb_agg_ratios <- aus_nb_results[[1]]
-
-# Calculating group ratios
-us_nb_grp_ratios <- us_nb_results[[2]]
-uk_nb_grp_ratios <- uk_nb_results[[2]]
-aus_nb_grp_ratios <- aus_nb_results[[2]]
-
 # Combining country cases
 all_agg_ratios <- bind_rows(list(us_results[[1]], uk_results[[1]], aus_results[[1]]))
 all_agg_ratios$cnt <- factor(all_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
@@ -412,194 +361,87 @@ el_cases_names <- c(
 )
 
 # Plotting aggregate measures over steps and contrasting country cases
-all_agg_ratios_plot <- all_agg_ratios %>%
-  group_by(cnt, steps) %>%
-  summarize(info_seg = mean(info_seg),
-            share_happy = mean(share_happy),
-            share_seg = mean(share_seg)) %>%
-  gather(key = "Ratio", value = "Value", info_seg, share_happy, share_seg) %>%
-  ggplot(aes(x = steps, y = Value, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
-    geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
-  ggtitle("Aggregate Ratios Over Steps (Mean of 100 Runs)") + 
-  facet_grid(~Ratio, labeller = as_labeller(ratio_agg_names)) + xlab("Steps") + 
-  scale_color_brewer(palette = "Set1")
-  
-
-pdf("Plots/all_agg_ratios.pdf")
-all_agg_ratios_plot
-dev.off()
-
-test_plot <- agg_results_plotter(all_agg_ratios, cases = F)
-pdf("Plots/agg_ratios.pdf")
-test_plot
+agg_ratios_plot <- agg_results_plotter(all_agg_ratios, cases = F)
+pdf("Plots/agg_ratios.pdf", width = 9)
+agg_ratios_plot
 dev.off()
 
 # Plotting group specific measures over steps and contrasting segregation across different types
-all_grp_ratios_plot <- all_grp_ratios %>%
-  group_by(cnt, steps, type) %>%
-  summarize(grp_info = mean(grp_info)) %>%
-  ggplot(aes(x = steps, y = grp_info, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
-    geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
-    ggtitle("Group Segregation Over Steps (Mean of 100 Runs)") + 
-    facet_grid(~type, labeller = as_labeller(type_grp_names)) + xlab("Steps") + ylab("Group Information Value") +
-    scale_color_brewer(palette = "Set1")
-
-pdf("Plots/all_grp_ratios.pdf")
-all_grp_ratios_plot
+grp_ratios_plot <- grp_results_plotter(all_grp_ratios, cases = F)
+pdf("Plots/grp_ratios.pdf", width = 9)
+grp_ratios_plot
 dev.off()
 
-test_plot2 <- grp_results_plotter(all_grp_ratios, cases = F)
-pdf("Plots/grp_ratios.pdf")
-test_plot2
+# Plotting aggregate measures over steps and contrasting country cases with 1000 steps
+agg_ratios_plot_1000 <- agg_results_plotter(all_agg_ratios_1000, cases = F)
+pdf("Plots/agg_ratios_1000.pdf", width = 9)
+agg_ratios_plot_1000
 dev.off()
 
-# 1000 step case
-all_agg_ratios_plot_1000 <- all_agg_ratios_1000 %>%
-  group_by(cnt, steps) %>%
-  summarize(info_seg = mean(info_seg),
-            share_happy = mean(share_happy),
-            share_seg = mean(share_seg)) %>%
-  gather(key = "Ratio", value = "Value", info_seg, share_happy, share_seg) %>%
-  ggplot(aes(x = steps, y = Value, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
-    geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
-  ggtitle("Aggregate Ratios Over Steps (Mean of 10 Runs)") + 
-  facet_grid(~Ratio, labeller = as_labeller(ratio_agg_names)) + xlab("Steps") + 
-  scale_color_brewer(palette = "Set1")
-  
-
-pdf("Plots/all_agg_ratios_1000.pdf")
-all_agg_ratios_plot_1000
-dev.off()
-
-# Plotting group specific measures over steps and contrasting segregation across different types
-all_grp_ratios_plot_1000 <- all_grp_ratios_1000 %>%
-  group_by(cnt, steps, type) %>%
-  summarize(grp_info = mean(grp_info)) %>%
-  ggplot(aes(x = steps, y = grp_info, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
-    geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
-    ggtitle("Group Segregation Over Steps (Mean of 10 Runs)") + 
-    facet_grid(~type, labeller = as_labeller(type_grp_names)) + xlab("Steps") + ylab("Group Information Value") +
-    scale_color_brewer(palette = "Set1")
-
-pdf("Plots/all_grp_ratios_1000.pdf")
-all_grp_ratios_plot_1000
+# Plotting group specific measures over steps and contrasting segregation across different types with 1000 steps
+grp_ratios_plot_1000 <- grp_results_plotter(all_grp_ratios_1000, cases = F)
+pdf("Plots/grp_ratios_1000.pdf", width = 9)
+grp_ratios_plot_1000
 dev.off()
 
 # Plotting aggregate measures over steps and contrasting country cases
-all_th_agg_ratios_plot <- all_th_agg_ratios %>%
-  group_by(cnt, steps, cases) %>%
-  summarize(info_seg = mean(info_seg),
-            share_happy = mean(share_happy),
-            share_seg = mean(share_seg)) %>%
-  gather(key = "Ratio", value = "Value", info_seg, share_happy, share_seg) %>%
-  ggplot(aes(x = steps, y = Value, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
-  geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+th_agg_ratios_plot <- agg_results_plotter(all_th_agg_ratios, cases = T) + 
   ggtitle("Aggregate Ratios with Varying Threshold Utility (Mean of 100 Runs)") + 
-  facet_grid(cases~Ratio, labeller = labeller(Ratio = as_labeller(ratio_agg_names), 
-                                              cases = as_labeller(th_cases_names))) +
-  xlab("Steps") + scale_color_brewer(palette = "Set1")
-
-test_plot3 <- agg_results_plotter(all_th_agg_ratios, cases = T)
-test_plot3 <- test_plot3 +   ggtitle("Aggregate Ratios with Varying Threshold Utility (Mean of 100 Runs)") + 
   facet_grid(cases~Ratio, labeller = labeller(Ratio = as_labeller(ratio_agg_names), 
                                               cases = as_labeller(th_cases_names)))
 
-pdf("Plots/all_th_agg_ratios.pdf")
-all_th_agg_ratios_plot
-dev.off()
-
-pdf("Plots/th_agg_ratios.pdf")
-test_plot3
+pdf("Plots/th_agg_ratios.pdf", width = 9)
+th_agg_ratios_plot
 dev.off()
 
 # Plotting group specific measures over steps and contrasting segregation across different types
-all_th_grp_ratios_plot <- all_th_grp_ratios %>%
-  group_by(cnt, steps, type, cases) %>%
-  summarize(grp_info = mean(grp_info)) %>%
-  ggplot(aes(x = steps, y = grp_info, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
-  geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+th_grp_ratios_plot <- grp_results_plotter(all_th_grp_ratios, cases = T) +
   ggtitle("Group Segregation with Varying Threshold Utility (Mean of 100 Runs)") + 
-  facet_grid(cases~type, labeller = labeller(type = as_labeller(type_grp_names), 
-                                              cases = as_labeller(th_cases_names))) +
-  xlab("Steps") + ylab("Group Information Value") + scale_color_brewer(palette = "Set1")
-
-test_plot4 <- grp_results_plotter(all_th_grp_ratios, cases = T)
-test_plot4 <- test_plot4 +ggtitle("Group Segregation with Varying Threshold Utility (Mean of 100 Runs)") + 
   facet_grid(cases~type, labeller = labeller(type = as_labeller(type_grp_names), 
                                              cases = as_labeller(th_cases_names))) 
 
-pdf("Plots/all_th_grp_ratios.pdf")
-all_th_grp_ratios_plot
-dev.off()
-
-pdf("Plots/th_grp_ratios.pdf")
-test_plot4
+pdf("Plots/th_grp_ratios.pdf", width = 9)
+th_grp_ratios_plot
 dev.off()
 
 # Plotting aggregate measures over steps and contrasting country cases
-all_nb_agg_ratios_plot <- all_nb_agg_ratios %>%
-  group_by(cnt, steps, cases) %>%
-  summarize(info_seg = mean(info_seg),
-            share_happy = mean(share_happy),
-            share_seg = mean(share_seg)) %>%
-  gather(key = "Ratio", value = "Value", info_seg, share_happy, share_seg) %>%
-  ggplot(aes(x = steps, y = Value, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
-  geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+nb_agg_ratios_plot <- agg_results_plotter(all_nb_agg_ratios, cases = T) + 
   ggtitle("Aggregate Ratios with Varying Neighborhood Utility (Mean of 100 Runs)") + 
   facet_grid(cases~Ratio, labeller = labeller(Ratio = as_labeller(ratio_agg_names), 
-                                              cases = as_labeller(nb_cases_names))) +
-  xlab("Steps") + scale_color_brewer(palette = "Set1")
+                                              cases = as_labeller(nb_cases_names)))
 
-pdf("Plots/all_nb_agg_ratios.pdf")
-all_nb_agg_ratios_plot
+pdf("Plots/nb_agg_ratios.pdf", width = 9)
+nb_agg_ratios_plot
 dev.off()
 
 # Plotting group specific measures over steps and contrasting segregation across different types
-all_nb_grp_ratios_plot <- all_nb_grp_ratios %>%
-  group_by(cnt, steps, type, cases) %>%
-  summarize(grp_info = mean(grp_info)) %>%
-  ggplot(aes(x = steps, y = grp_info, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
-  geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+nb_grp_ratios_plot <- grp_results_plotter(all_nb_grp_ratios, cases = T) +
   ggtitle("Group Segregation with Varying Neighborhood Utility (Mean of 100 Runs)") + 
   facet_grid(cases~type, labeller = labeller(type = as_labeller(type_grp_names), 
-                                             cases = as_labeller(nb_cases_names))) +
-  xlab("Steps") + ylab("Group Information Value") + scale_color_brewer(palette = "Set1")
+                                             cases = as_labeller(nb_cases_names))) 
 
-pdf("Plots/all_nb_grp_ratios.pdf")
-all_nb_grp_ratios_plot
+pdf("Plots/nb_grp_ratios.pdf", width = 9)
+nb_grp_ratios_plot
 dev.off()
 
 # Plotting aggregate measures over steps and contrasting country cases
-all_el_agg_ratios_plot <- all_el_agg_ratios %>%
-  group_by(cnt, steps, cases) %>%
-  summarize(info_seg = mean(info_seg),
-            share_happy = mean(share_happy),
-            share_seg = mean(share_seg)) %>%
-  gather(key = "Ratio", value = "Value", info_seg, share_happy, share_seg) %>%
-  ggplot(aes(x = steps, y = Value, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
-  geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+el_agg_ratios_plot <- agg_results_plotter(all_el_agg_ratios, cases = T) + 
   ggtitle("Aggregate Ratios with Varying Election Utility (Mean of 100 Runs)") + 
   facet_grid(cases~Ratio, labeller = labeller(Ratio = as_labeller(ratio_agg_names), 
-                                              cases = as_labeller(el_cases_names))) +
-  xlab("Steps") + scale_color_brewer(palette = "Set1")
+                                              cases = as_labeller(el_cases_names)))
 
-pdf("Plots/all_el_agg_ratios.pdf")
-all_el_agg_ratios_plot
+pdf("Plots/el_agg_ratios.pdf", width = 9)
+el_agg_ratios_plot
 dev.off()
 
 # Plotting group specific measures over steps and contrasting segregation across different types
-all_el_grp_ratios_plot <- all_el_grp_ratios %>%
-  group_by(cnt, steps, type, cases) %>%
-  summarize(grp_info = mean(grp_info)) %>%
-  ggplot(aes(x = steps, y = grp_info, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
-  geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+el_grp_ratios_plot <- grp_results_plotter(all_el_grp_ratios, cases = T) +
   ggtitle("Group Segregation with Varying Election Utility (Mean of 100 Runs)") + 
   facet_grid(cases~type, labeller = labeller(type = as_labeller(type_grp_names), 
-                                             cases = as_labeller(el_cases_names))) +
-  xlab("Steps") + ylab("Group Information Value") + scale_color_brewer(palette = "Set1")
+                                             cases = as_labeller(el_cases_names))) 
 
-pdf("Plots/all_el_grp_ratios.pdf")
-all_el_grp_ratios_plot
+pdf("Plots/el_grp_ratios.pdf", width = 9)
+el_grp_ratios_plot
 dev.off()
 
 ## Baseline case tables

@@ -106,8 +106,8 @@ There is a plethora of articles that look into the reasons as to why people move
 To answer the question how different voting systems influence the degree of political segregation in a country, we employ an agent-based model. Our hypothesis is that voting systems introduce different degrees of political representation, which will affect the probability with which agents will move. In this section, we present the general setup of our model as well as the individual electoral systems that we will simulate in the subsequent analysis.\\%necessary here? - should be in the intro I think\footnote{An agent-based model is, in short, a model where you simulate the actions of autonomous individual agents and evaluate the effects that these individual actions have on the system as a whole.}.
 Note that all model societies are comprised of four types that correspond to different preferences on the political spectrum.\footnote{This is for reasons of comparability between societies. We set The proportion of types to 33\% for the types on the edges of the political spectrum and to 17\% for each of the two moderate types.} Agents obtain utility from having neighbors that are exactly their type but can also gain some utility from people that have voted for the same party (as their first-order preference) but are a different type. In addition to benefiting from having similar neighbors, agents also gain when their party has won the local elections. How much weight they put on the election outcome will be varied in the simulation.
 Thus, we construct the individuals' utility function such that it consists of the utility derived from the number of like-minded neighbors and the utility derived from living in a county that is ruled by the party they favor.
-We impose a threshold utility that specifies how many units of utility the agents must at least have from their neighbors and the elections outcome to be happy. If the agent's utility is below this threshold the agent will move (and thus leave their house vacant), randomly, into a house until they find a place that gives them a utility that is above the threshold level. Initially, agents are randomly assigned to houses in the different local areas. We set 30\% of houses to be empty to leave some space for individuals to move.
- In our simulations, our society consists of $33\times33$-houses square. Each county is $11\times11$ houses (our society thus consists of nine counties) and each neighborhood is $3\times3$ houses, where the agent whose neighborhood it is naturally lives in the middle of this $3\times3$ matrix. (In our model we also let northern and southern, and eastern and western, borders of the square meet, so that the agents living on the edge of the square are also completely surrounded by houses, and thus living in neighborhoods.)
+We impose a threshold utility that specifies the units of utility an agent must have to be happy. If the agent's utility is below this threshold the agent will move (and thus leave their house vacant), randomly, into a house until they find a place that gives them a utility that is above the threshold level. Initially, agents are randomly assigned to houses in the different local areas. We set 30\% of houses to be empty to leave some space for individuals to move.
+ In our simulations, our society consists of $33\times33$ -houses square. Each county is $11\times11$ houses (our society thus consists of nine counties) and each neighborhood is $3\times3$ houses, where the agent whose neighborhood it is naturally lives in the middle of this $3\times3$ matrix. (In our model we also let northern and southern, and eastern and western, borders of the square meet, so that the agents living on the edge of the square are also completely surrounded by houses, and thus living in neighborhoods.)
 %We then run the simulations until all agents have found a house in which their utility is above the threshold value. % Not exactly right
 
 \subsection{USA: First-past-the-post with two parties}
@@ -156,15 +156,16 @@ The Australian system implies that compared to the UK system, more agents should
 %*******************************************************************************************************************************************************************
 
 \section{\label{sec_res}Analysis}
-We run the model 100 times. Each time the model runs 100 iterations (obviously, the iterations will stop, should all agents have found a neighborhood in which they are satisfied). The mean values of each step for each different model are shown in figures 1 through 8. In total we run the model 7 times, that is, we use 7 different combinations of parameter values. Our baseline model uses the middle values for the parameters, i.e. the weight of living with like-minded neighbors is set to 0.5, the weight on election is set to 1 and the threshold utility is set to 5. In the other 6 runs we vary one parameter value at the time, either up or down, while keeping the remaining two parameter values at the baseline, "middle", level. The different parameter values are shown in table 1. We evaluate the model on three measures: "Information Value", "Share of Happy Agents" and "Share of Segregated Agents". The "Information Value" measures how much the counties differ from each other. If all counties have similar shares of the different agent types the "Information Value" is low, if the counties differ alot (and thus are more segregated) the value is high. The formula for the "Information Value" is as follows: \newline \newline
-$$\sum_{m=1}^{M}\sum_{j=1}^{J}\frac{t_j}{TE}\pi_{jm}ln\frac{\pi_{jm}}{\pi_m},$$ where M is the number of agent types, J is the number of counties, T is the total number of agents, E$=\sum_{m=1}^{M}\pi_m ln(\frac{1}{\pi_m})$, i.e. \textcolor{red}{Entropy??}, $\pi_{jm}$ is the proportion of agent type $m$ living in county $j$ and $\pi_m$ is the proportion of agent type $m$. This formula for measuring segregation is used by Reardon and Firebaugh (2002). 
+We run the model 100 times. Each time the model runs 100 steps (obviously, the iterations will stop, should all agents have found a neighborhood in which they are satisfied). The mean values of each step for each different model are shown in figures 1 through 8. In total we run the model 7 times, that is, we use 7 different combinations of parameter values. Our baseline model uses the middle values for the parameters, i.e. the weight of living with like-minded neighbors is set to 0.5, the weight on election is set to 1 and the threshold utility is set to 5. In the other 6 runs we vary one parameter value at the time, either up or down, while keeping the remaining two parameter values at the baseline, "middle", level % T: to be consistent, a single run simulates the model 100 runs, and for each setup with different parameters we run the models 100 times
+. The different parameter values are shown in Table 1. We evaluate the model on three measures: "Information Value", "Share of Happy Agents" and "Share of Segregated Agents". The "Information Value" measures how much the counties differ from each other. If all counties have similar shares of the different agent types the "Information Value" is low, if the counties differ alot (and thus are more segregated) the value is high. The formula for the "Information Value" is as follows: \newline \newline
+$$\sum_{m=1}^{M}\sum_{j=1}^{J}\frac{t_j}{T \cdot E}\pi_{jm}ln\frac{\pi_{jm}}{\pi_m},$$ where M is the number of agent types, J is the number of counties, T is the total number of agents, E$=\sum_{m=1}^{M}\pi_m ln(\frac{1}{\pi_m})$, i.e. \textcolor{red}{Entropy??}, $\pi_{jm}$ is the proportion of agent type $m$ living in county $j$ and $\pi_m$ is the proportion of agent type $m$. This formula for measuring segregation is used by Reardon and Firebaugh (2002). %T: Include motivation for why information value is preferred aggregate measure of segregation 
 
 \begin{table}[ht]
 	\centering
 	\caption{Utility model, parameter values}
 	\begin{tabular}{llll}
 		\hline
-		Parameter values & Neighbourhood & $\gamma$, Election & Threshold \\ 
+		Parameter values & Neighbourhood ($\alpha$) & Election ($\gamma$) & Threshold ($\bar{U}$) \\ 
 		\hline \hline
 		Low & 0.25 & 0.5 & 4 \\ 
 		Middle & 0.5 & 1 & 5 \\ 
@@ -173,55 +174,56 @@ $$\sum_{m=1}^{M}\sum_{j=1}^{J}\frac{t_j}{TE}\pi_{jm}ln\frac{\pi_{jm}}{\pi_m},$$ 
 	\end{tabular}
 \end{table}
 
-Figure 1 shows the three model measurements for the baseline model ( \textcolor{red}{why is "share of happy" different from the middle graph in the three different varying utility parameters graphs??}). It is clear that the society with a first-past-the-post with several parties election system (from here on "UK"), is most segregated. When it comes to the share of happy agents UK and US seem to converge. That the UK is not also the most happy society, in a setting where a certain amount of segregation leads to agent happiness, can be explained by the fact that there are three parties in the UK and the consequently even though the society as a whole is more segragated than in the US, less agents will be represented politically and they will thus derive less utility from the election result. Figure 2 breaks down the segregation generated by the baseline model into the agent groups. Not surprisingly, the UK sees the highest levels of group segregation. Also the American and Australian agent groups show an expected pattern. Naturally, the two political extremes can and will segregate themselves. The center agents in the US cannot live in a county where there party rules and will thus to a larger extent live among agents who do not share their center ideology. In Australia, on the other hand, the center parties can rule, which is why we see that the two center groups are more segregated in Australia than in the US; it will simply be more attractive for a center agent to live with other center agents. \newline \newline
+Figure 1 shows the three model measurements for the baseline model ( \textcolor{red}{why is "share of happy" different from the middle graph in the three different varying utility parameters graphs??}) %T: when doing different parameter comparisons, the baseline case is re-simulated hence the final graphs are not identical
+. It is clear that the society with a first-past-the-post with several parties election system (from here on "UK"), is most segregated. When it comes to the share of happy agents UK and US seem to converge. That the UK is not also the most happy society, in a setting where a certain amount of segregation leads to agent happiness, can be explained by the fact that there are three parties in the UK and the consequently even though the society as a whole is more segragated than in the US, less agents will be represented politically and they will thus derive less utility from the election result. Figure 2 breaks down the segregation generated by the baseline model into the agent groups. Not surprisingly, the UK sees the highest levels of group segregation. Also the American and Australian agent groups show an expected pattern. Naturally, the two political extremes can and will segregate themselves. The center agents in the US cannot live in a county where there party rules and will thus to a larger extent live among agents who do not share their center ideology. In Australia, on the other hand, the center parties can rule, which is why we see that the two center groups are more segregated in Australia than in the US; it will simply be more attractive for a center agent to live with other center agents. \newline \newline
 Figures 3 through 8 show the same two graphs for the parameter value variations. The relative relation between the three countries in terms of degree of segregation remains stable for the different parameter values. Figures 4 and 6 supports the aggregate findings that although it is generally less segregated than the US and the UK, Australia sees a relatively higher of segregation among the center groups. When varying the election paramater value from 1 to 1.5 we see that the share of happy agents becomes higher in Australia than in the US (Figure 3). The reason for this can be inferred from Figure 4: the relatively bigger importance of elections means that Australia, where all parties can win elections, will see more movements from the agents, escpecially the center ones, and in the end more segregation, which in our model will lead to a greater share of happy agents. In Figures 5 and 6 we see that the level of segregation is unaffected by changes in the neighbourhood utility parameter value. This makes sense, sinse the utility derived from like-minded neighbours is the same for all three societies. When we vary the threshold utility from 5 to 4 Australia becomes relatively (and absolutely) more segregated. This is due to the same mechanism that led to more segregation when the importance of elections increased, namely that when the agents move more easily the probability that the Australian center agents will find their likes and creating an election winning firmly segregated county increases. The effect of more easily moving agents is smaller for the US and the UK since they have fewer parties. In Figure 8 we can see that the increasing segregation in Australia is indeed driven by the increasingly segregated center agents.        
 
 \begin{figure}[bp!]
 	\centering
 	\caption{Aggregate Ratios}
-	\includegraphics[height=10cm,width=16cm]{./Plots/all_agg_ratios.pdf}
+	\includegraphics[scale=0.6]{./Plots/agg_ratios.pdf}
 \end{figure}
 
 \begin{figure}[bp!]
 	\centering
 	\caption{Group Segregation}
-	\includegraphics[height=10cm,width=16cm]{./Plots/all_grp_ratios.pdf}
+	\includegraphics[scale=0.6]{./Plots/grp_ratios.pdf}
 \end{figure}
 
 \begin{figure}[bp!]
 	\centering
 	\caption{Aggregate Ratios and Election Utility}
-	\includegraphics[height=10cm,width=16cm]{./Plots/all_el_agg_ratios.pdf}
+	\includegraphics[scale=0.6]{./Plots/el_agg_ratios.pdf}
 \end{figure}
 
 \begin{figure}[bp!]
 	\centering
 	\caption{Group Segregation and Election Utility}
-	\includegraphics[height=10cm,width=16cm]{./Plots/all_el_grp_ratios.pdf}
+	\includegraphics[scale=0.6]{./Plots/el_grp_ratios.pdf}
 \end{figure}
 
 \begin{figure}[bp!]
 	\centering
 	\caption{Aggregate Ratios and Neighbourhood Utility}
-	\includegraphics[height=10cm,width=16cm]{./Plots/all_nb_agg_ratios.pdf}
+	\includegraphics[scale=0.6]{./Plots/nb_agg_ratios.pdf}
 \end{figure}
 
 \begin{figure}[bp!]
 	\centering
 	\caption{Group Segregation and Neighbourhood Utility}
-	\includegraphics[height=10cm,width=16cm]{./Plots/all_nb_grp_ratios.pdf}
+	\includegraphics[scale=0.6]{./Plots/nb_grp_ratios.pdf}
 \end{figure}
 
 \begin{figure}[bp!]
 	\centering
 	\caption{Aggregate Ratios and Threshold Utility}
-	\includegraphics[height=10cm,width=16cm]{./Plots/all_th_agg_ratios.pdf}
+	\includegraphics[scale=0.6]{./Plots/th_agg_ratios.pdf}
 \end{figure}
 
 \begin{figure}[bp!]
 	\centering
 	\caption{Group Segregation and Threshold Utility}
-	\includegraphics[height=10cm,width=16cm]{./Plots/all_th_grp_ratios.pdf}
+	\includegraphics[scale=0.6]{./Plots/th_grp_ratios.pdf}
 \end{figure}
 
 
