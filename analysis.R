@@ -3,9 +3,25 @@ setwd("C:\\Users\\gedmi\\Desktop\\SE Project\\Further\\New\\AxelHSG")
 
 #### Functions ####
 complete_calc <- function(data_out){
+  # The purpose of the function is to 1) clean the data, 2) restructure the data and 3) compute
+  # relevant measures. The structure of the cleaning and which ratios are calculated is not 
+  # specific to the data, hence can be generalized to all simulated output that is produced using
+  # the Python code. 
+  
+  # Note on the structure of the data. While the python data output is such that a single observation
+  # (row) corresponds to a single step in the simulation, for analysis each observation (row) should 
+  # in adition to corresponding to a step should also be differentiated by agent type that we are 
+  # looking at and location specific measures. 
+  
+  # The final output of the function is a list of 3 tables which calculate relevant measures.
+  # For this reason function output that is referred to [[1]] returns aggregated group segregation measures
+  # [[2]] returns group specific segregation measures and [[3]] returns election specific outcomes
+  
+  # Renaming missing column name and adjusting the value
   colnames(data_out)[1] <- "steps"
   data_out$steps <- data_out$steps+1
   
+  # Regex to remove square brackets from python values that were location specific
   data_out$elections <- gsub(pattern = "\\[", replacement = "", x = data_out$elections)
   data_out$elections <- gsub(pattern = "\\]", replacement = "", x = data_out$elections)
   
@@ -24,6 +40,7 @@ complete_calc <- function(data_out){
   data_out$location_total <- gsub(pattern = "\\[", replacement = "", x = data_out$location_total)
   data_out$location_total <- gsub(pattern = "\\]", replacement = "", x = data_out$location_total)
   
+  # Names of replacement columns. Indices from 1 to 9 correspond to 9 locations
   colnames_elect <- paste0("elect", 1:9)
   colnames_total <- paste0("loc_total", 1:9)
   colnames_grp0 <- paste0("loc_grp_total0", 1:9)
@@ -31,8 +48,10 @@ complete_calc <- function(data_out){
   colnames_grp2 <- paste0("loc_grp_total2", 1:9)
   colnames_grp3 <- paste0("loc_grp_total3", 1:9)
   
+  # Creating empty columns for adding into data
   data_out[, c(colnames_elect, colnames_total, colnames_grp0, colnames_grp1, colnames_grp2, colnames_grp3)] <- NA
   
+  # The following lines separate location specific values from a single column to a single distinct column
   data_out[, colnames_elect] <- matrix(as.numeric(unlist(strsplit(data_out[, "elections"], ","))), ncol = 9, byrow = T)
   data_out[, colnames_total] <- matrix(as.numeric(unlist(strsplit(data_out[, "location_total"], ","))), ncol = 9, byrow = T)
   data_out[, colnames_grp0] <- matrix(as.numeric(unlist(strsplit(data_out[, "location_0"], ","))), ncol = 9, byrow = T)
@@ -40,15 +59,18 @@ complete_calc <- function(data_out){
   data_out[, colnames_grp2] <- matrix(as.numeric(unlist(strsplit(data_out[, "location_2"], ","))), ncol = 9, byrow = T)
   data_out[, colnames_grp3] <- matrix(as.numeric(unlist(strsplit(data_out[, "location_3"], ","))), ncol = 9, byrow = T)
   
+  # Maintaining values for A: rename column instead of creating additional varaibles
   data_out[, "group_total0"] <- data_out[,"total_0"]
   data_out[, "group_total1"] <- data_out[,"total_1"]
   data_out[, "group_total2"] <- data_out[,"total_2"]
   data_out[, "group_total3"] <- data_out[,"total_3"]
   
+  # Removing irrelevant columns
   data_out <- data_out[, -which(names(data_out) %in% c("elections", "location_total", "location_0", "location_1", "location_2", "location_3",
                                                        "total_0", "total_1", "total_2", "total_3"))]
   
-  data_store <- data_out %>%
+  # Restructuring of the data
+  data_store <- data_out %>% 
     gather(key = "agg_types", value = "num", c(colnames_elect, colnames_total, colnames_grp0, colnames_grp1, colnames_grp2, colnames_grp3)) %>%
     mutate(loc = as.factor(substr(agg_types, start = nchar(agg_types), stop = nchar(agg_types))),
            agg_types = substr(agg_types, start = 1, stop = nchar(agg_types)-1)) %>%
@@ -60,7 +82,8 @@ complete_calc <- function(data_out){
     spread(key = "types", value = "num") %>% 
     arrange(run, steps, type, loc)
   
-  data_calc1 <- data_store %>%
+  # Calculating intermediate values for aggregate segregation measures. ADD: refer to the page for the formula
+  data_agg_calc <- data_store %>%
     group_by(run, steps, loc, cases) %>%
     mutate(total = sum(group_total),
            pi_m = group_total/total,
@@ -70,19 +93,16 @@ complete_calc <- function(data_out){
            share_happy = happy/total,
            share_seg = seg_agents/total) %>%
     ungroup()
-    # group_by(run, steps, loc, cases, type) %>%
-    # mutate(elec_swap = ifelse(elect == lag(elect), 0, 1)) %>%
-    # ungroup()
   
-  # Calculating seggregation measures. Names correspond to the numbering in Notebook files
-  data_ratios1 <- data_calc1 %>%
+  # Aggregating segregation measures for all groups ADD: refer to the page for the formula
+  data_agg_ratios <- data_agg_calc %>%
     group_by(run, steps, cnt, cases) %>%
     summarize(info_seg = sum((loc_total/(total*e))*pi_jm*log(pi_jm_log/pi_m)),
               share_happy = mean(share_happy),
               share_seg = mean(share_seg))
   
-  
-  data_calc2 <- data_store %>%
+  # Calculating intermediate values for group segregation measures ADD: refer to the page for the formula
+  data_grp_calc <- data_store %>%
     group_by(run, steps, loc, cases) %>%
     mutate(total = sum(group_total),
            pi_m = group_total/total,
@@ -99,22 +119,82 @@ complete_calc <- function(data_out){
            share_seg = seg_agents/total) %>%
     ungroup()
   
-  data_ratios2 <- data_calc2 %>%
+  # Calculating group specific segregation measure ADD: refer to the page for the formula
+  data_grp_ratios <- data_grp_calc %>%
     group_by(run, type, steps, cnt, cases) %>%
-    summarize(grp_info = sum((loc_total/(total*e_grp))*pi_jm*log(pi_jm_log/pi_m) + (loc_total/(total*e_grp))*pi_other_j*log(pi_other_j_log/pi_other)))
+    summarize(grp_info = sum((loc_total/(total*e_grp))*pi_jm*log(pi_jm_log/pi_m) + 
+                               (loc_total/(total*e_grp))*pi_other_j*log(pi_other_j_log/pi_other)))
   
-  data_calc3 <- data_store %>%
+  data_elec_calc <- data_store %>%
     select(run, steps, loc, elect, cnt)
   
-  data_calc3 <- data_calc3[!duplicated(data_calc3),]
+  # Removing duplicate cases such that a single observation for each location exists for each step.
+  data_elec_calc <- data_elec_calc[!duplicated(data_elec_calc),]
   
-  data_ratios3 <- data_calc3 %>%
+  data_elec_ratios <- data_elec_calc %>%
     arrange(run, loc, steps) %>%
     group_by(run, loc) %>%
     mutate(change_loc = ifelse(elect == lag(elect), 0, 1))
   
+  # Returning a list of relevant measures that were calculated
+  return(list(data_agg_ratios, data_grp_ratios, data_elec_calc)) 
+}
+
+agg_results_plotter <- function(agg_plot_data, cases){
+  if (cases == T){
+    agg_plot <- agg_plot_data %>%
+      group_by(cnt, steps, cases) %>%
+      summarize(info_seg = mean(info_seg),
+                share_happy = mean(share_happy),
+                share_seg = mean(share_seg)) %>%
+      gather(key = "Ratio", value = "Value", info_seg, share_happy, share_seg) %>%
+      ggplot(aes(x = steps, y = Value, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
+      geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+      xlab("Steps") + scale_color_brewer(palette = "Set1")
+      ggtitle("Aggregate Ratios with Varying Election Utility (Mean of 100 Runs)")
+      
+      return(agg_plot)
+  } else {
+    agg_plot <- agg_plot_data %>%
+      group_by(cnt, steps) %>%
+      summarize(info_seg = mean(info_seg),
+                share_happy = mean(share_happy),
+                share_seg = mean(share_seg)) %>%
+      gather(key = "Ratio", value = "Value", info_seg, share_happy, share_seg) %>%
+      ggplot(aes(x = steps, y = Value, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
+      geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+      ggtitle("Aggregate Ratios Over Steps") + 
+      facet_grid(~Ratio, labeller = as_labeller(ratio_agg_names)) + xlab("Steps") + 
+      scale_color_brewer(palette = "Set1")
+    
+    return(agg_plot)
+  }
   
-  return(list(data_ratios1, data_ratios2, data_ratios3)) 
+}
+
+grp_results_plotter <- function(grp_plot_data, cases){
+  if (cases == T) {
+    grp_plot <- grp_plot_data %>%
+      group_by(cnt, steps, type) %>%
+      summarize(grp_info = mean(grp_info)) %>%
+      ggplot(aes(x = steps, y = grp_info, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
+      geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+      xlab("Steps") + ylab("Group Information Value") + scale_color_brewer(palette = "Set1")
+    
+    return(grp_plot) 
+    
+  } else {
+    grp_plot <- grp_plot_data %>%
+      group_by(cnt, steps, type) %>%
+      summarize(grp_info = mean(grp_info)) %>%
+      ggplot(aes(x = steps, y = grp_info, color = cnt)) + scale_y_continuous(limits = c(0, 1)) +
+      geom_line(size = 1) + theme_bw() + theme(legend.position = "bottom", legend.title = element_blank()) + 
+      ggtitle("Group Segregation Over Steps") + 
+      facet_grid(~type, labeller = as_labeller(type_grp_names)) + xlab("Steps") + ylab("Group Information Value") +
+      scale_color_brewer(palette = "Set1")
+    
+    return(grp_plot)
+  }
 }
 
 #### Libraries ####
@@ -123,26 +203,27 @@ library(xtable)
 
 start_time <- Sys.time()
 #### Adjusting Python data ####
+# Baseline data
 data_us <- read.csv("data/out_us.csv", stringsAsFactors = F)
 data_uk <- read.csv("data/out_uk.csv", stringsAsFactors = F)
 data_aus <- read.csv("data/out_aus.csv", stringsAsFactors = F)
 
+# Baseline with 1000 steps
 data_us_1000 <- read.csv("data/out_us_1000.csv", stringsAsFactors = F)
 data_uk_1000 <- read.csv("data/out_uk_1000.csv", stringsAsFactors = F)
 data_aus_1000 <- read.csv("data/out_aus_1000.csv", stringsAsFactors = F)
 
-data_us_1000 <- data_us_1000[,-1]
-data_uk_1000 <- data_uk_1000[,-1]
-data_aus_1000 <- data_aus_1000[,-1]
-
+# Varying utility threshold
 data_us_th <- read.csv("data/out_us_th.csv", stringsAsFactors = F)
 data_uk_th <- read.csv("data/out_uk_th.csv", stringsAsFactors = F)
 data_aus_th <- read.csv("data/out_aus_th.csv", stringsAsFactors = F)
 
+# Varying neighborhood utility
 data_us_nb <- read.csv("data/out_us_nb.csv", stringsAsFactors = F)
 data_uk_nb <- read.csv("data/out_uk_nb.csv", stringsAsFactors = F)
 data_aus_nb <- read.csv("data/out_aus_nb.csv", stringsAsFactors = F)
 
+# Varying election utility
 data_us_el <- read.csv("data/out_us_el.csv", stringsAsFactors = F)
 data_uk_el <- read.csv("data/out_uk_el.csv", stringsAsFactors = F)
 data_aus_el <- read.csv("data/out_aus_el.csv", stringsAsFactors = F)
@@ -268,37 +349,37 @@ uk_nb_grp_ratios <- uk_nb_results[[2]]
 aus_nb_grp_ratios <- aus_nb_results[[2]]
 
 # Combining country cases
-all_agg_ratios <- bind_rows(list(us_agg_ratios, uk_agg_ratios, aus_agg_ratios))
+all_agg_ratios <- bind_rows(list(us_results[[1]], uk_results[[1]], aus_results[[1]]))
 all_agg_ratios$cnt <- factor(all_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 
-all_grp_ratios <- bind_rows(list(us_grp_ratios, uk_grp_ratios, aus_grp_ratios))
+all_grp_ratios <- bind_rows(list(us_results[[2]], uk_results[[2]], aus_results[[2]]))
 all_grp_ratios$cnt <- factor(all_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
 
-all_agg_ratios_1000 <- bind_rows(list(us_agg_ratios_1000, uk_agg_ratios_1000, aus_agg_ratios_1000))
+all_agg_ratios_1000 <- bind_rows(list(us_results_1000[[1]], uk_results_1000[[1]], aus_results_1000[[1]]))
 all_agg_ratios_1000$cnt <- factor(all_agg_ratios_1000$cnt, levels = c("UK", "US", "AUS"))
 
-all_grp_ratios_1000 <- bind_rows(list(us_grp_ratios_1000, uk_grp_ratios_1000, aus_grp_ratios_1000))
+all_grp_ratios_1000 <- bind_rows(list(us_results_1000[[2]], uk_results_1000[[2]], aus_results_1000[[2]]))
 all_grp_ratios_1000$cnt <- factor(all_grp_ratios_1000$cnt, levels = c("UK", "US", "AUS"))
 
-all_th_agg_ratios <- bind_rows(list(us_th_agg_ratios, uk_th_agg_ratios, aus_th_agg_ratios))
+all_th_agg_ratios <- bind_rows(list(us_th_results[[1]], uk_th_results[[1]], aus_th_results[[1]]))
 all_th_agg_ratios$cnt <- factor(all_th_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 
-all_th_grp_ratios <- bind_rows(list(us_th_grp_ratios, uk_th_grp_ratios, aus_th_grp_ratios))
+all_th_grp_ratios <- bind_rows(list(us_th_results[[2]], uk_th_results[[2]], aus_th_results[[2]]))
 all_th_grp_ratios$cnt <- factor(all_th_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
 
-all_nb_agg_ratios <- bind_rows(list(us_nb_agg_ratios, uk_nb_agg_ratios, aus_nb_agg_ratios))
+all_nb_agg_ratios <- bind_rows(list(us_nb_results[[1]], uk_nb_results[[1]], aus_nb_results[[1]]))
 all_nb_agg_ratios$cnt <- factor(all_nb_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 
-all_nb_grp_ratios <- bind_rows(list(us_nb_grp_ratios, uk_nb_grp_ratios, aus_nb_grp_ratios))
+all_nb_grp_ratios <- bind_rows(list(us_nb_results[[2]], uk_nb_results[[2]], aus_nb_results[[2]]))
 all_nb_grp_ratios$cnt <- factor(all_nb_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
 
-all_el_agg_ratios <- bind_rows(list(us_el_agg_ratios, uk_el_agg_ratios, aus_el_agg_ratios))
+all_el_agg_ratios <- bind_rows(list(us_el_results[[1]], uk_el_results[[1]], aus_el_results[[1]]))
 all_el_agg_ratios$cnt <- factor(all_el_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 
-all_el_grp_ratios <- bind_rows(list(us_el_grp_ratios, uk_el_grp_ratios, aus_el_grp_ratios))
+all_el_grp_ratios <- bind_rows(list(us_el_results[[2]], uk_el_results[[2]], aus_el_results[[2]]))
 all_el_grp_ratios$cnt <- factor(all_el_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
 
-# Plotting aggregate measures over steps and contrasting country cases
+# Creating definitions of variable names for plotting
 ratio_agg_names <- c(
   `info_seg` = "Information Value",
   `share_happy` = "Share of Happy Agents",
@@ -312,6 +393,25 @@ type_grp_names <- c(
   `3` = "Lightblue"
 )
 
+th_cases_names <- c(
+  `4` = "Threshold = 4",
+  `5` = "Threshold = 5",
+  `6` = "Threshold = 6"
+)
+
+nb_cases_names <- c(
+  `0.25` = "Neigh. U. = 0.25",
+  `0.5` = "Neigh. U. = 0.5",
+  `0.75` = "Neigh. U. = 0.75"
+)
+
+el_cases_names <- c(
+  `0.5` = "Election U. = 0.5",
+  `1` = "Election U. = 1",
+  `1.5` = "Election U. = 1.5"
+)
+
+# Plotting aggregate measures over steps and contrasting country cases
 all_agg_ratios_plot <- all_agg_ratios %>%
   group_by(cnt, steps) %>%
   summarize(info_seg = mean(info_seg),
@@ -329,6 +429,11 @@ pdf("Plots/all_agg_ratios.pdf")
 all_agg_ratios_plot
 dev.off()
 
+test_plot <- agg_results_plotter(all_agg_ratios, cases = F)
+pdf("Plots/agg_ratios.pdf")
+test_plot
+dev.off()
+
 # Plotting group specific measures over steps and contrasting segregation across different types
 all_grp_ratios_plot <- all_grp_ratios %>%
   group_by(cnt, steps, type) %>%
@@ -341,6 +446,11 @@ all_grp_ratios_plot <- all_grp_ratios %>%
 
 pdf("Plots/all_grp_ratios.pdf")
 all_grp_ratios_plot
+dev.off()
+
+test_plot2 <- grp_results_plotter(all_grp_ratios, cases = F)
+pdf("Plots/grp_ratios.pdf")
+test_plot2
 dev.off()
 
 # 1000 step case
@@ -376,12 +486,6 @@ all_grp_ratios_plot_1000
 dev.off()
 
 # Plotting aggregate measures over steps and contrasting country cases
-th_cases_names <- c(
-  `4` = "Threshold = 4",
-  `5` = "Threshold = 5",
-  `6` = "Threshold = 6"
-)
-
 all_th_agg_ratios_plot <- all_th_agg_ratios %>%
   group_by(cnt, steps, cases) %>%
   summarize(info_seg = mean(info_seg),
@@ -395,8 +499,17 @@ all_th_agg_ratios_plot <- all_th_agg_ratios %>%
                                               cases = as_labeller(th_cases_names))) +
   xlab("Steps") + scale_color_brewer(palette = "Set1")
 
+test_plot3 <- agg_results_plotter(all_th_agg_ratios, cases = T)
+test_plot3 <- test_plot3 +   ggtitle("Aggregate Ratios with Varying Threshold Utility (Mean of 100 Runs)") + 
+  facet_grid(cases~Ratio, labeller = labeller(Ratio = as_labeller(ratio_agg_names), 
+                                              cases = as_labeller(th_cases_names)))
+
 pdf("Plots/all_th_agg_ratios.pdf")
 all_th_agg_ratios_plot
+dev.off()
+
+pdf("Plots/th_agg_ratios.pdf")
+test_plot3
 dev.off()
 
 # Plotting group specific measures over steps and contrasting segregation across different types
@@ -410,17 +523,20 @@ all_th_grp_ratios_plot <- all_th_grp_ratios %>%
                                               cases = as_labeller(th_cases_names))) +
   xlab("Steps") + ylab("Group Information Value") + scale_color_brewer(palette = "Set1")
 
+test_plot4 <- grp_results_plotter(all_th_grp_ratios, cases = T)
+test_plot4 <- test_plot4 +ggtitle("Group Segregation with Varying Threshold Utility (Mean of 100 Runs)") + 
+  facet_grid(cases~type, labeller = labeller(type = as_labeller(type_grp_names), 
+                                             cases = as_labeller(th_cases_names))) 
+
 pdf("Plots/all_th_grp_ratios.pdf")
 all_th_grp_ratios_plot
 dev.off()
 
-# Plotting aggregate measures over steps and contrasting country cases
-nb_cases_names <- c(
-  `0.25` = "Neigh. U. = 0.25",
-  `0.5` = "Neigh. U. = 0.5",
-  `0.75` = "Neigh. U. = 0.75"
-)
+pdf("Plots/th_grp_ratios.pdf")
+test_plot4
+dev.off()
 
+# Plotting aggregate measures over steps and contrasting country cases
 all_nb_agg_ratios_plot <- all_nb_agg_ratios %>%
   group_by(cnt, steps, cases) %>%
   summarize(info_seg = mean(info_seg),
@@ -454,12 +570,6 @@ all_nb_grp_ratios_plot
 dev.off()
 
 # Plotting aggregate measures over steps and contrasting country cases
-el_cases_names <- c(
-  `0.5` = "Election U. = 0.5",
-  `1` = "Election U. = 1",
-  `1.5` = "Election U. = 1.5"
-)
-
 all_el_agg_ratios_plot <- all_el_agg_ratios %>%
   group_by(cnt, steps, cases) %>%
   summarize(info_seg = mean(info_seg),
