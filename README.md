@@ -2,7 +2,7 @@
 ## Schelling segregation model under different voting systems
 ### By: Julia Baumann, Tadas Gedminas and Axel Purwin
 
-This repository contains code that is necessary for replicating "Do Voting Systems Affect Segregation" project. The modelling part of the project was done using Python, in particular implemented with Mesa agent based modelling module. Data analysis on simulation results was performed with R. The paper was written using LaTeX.
+This repository contains code that is necessary for replicating "Do Voting Systems Affect Segregation" project. The modelling part of the project was done using Python, in particular implemented with Mesa agent based modelling module. Data analysis on simulation results was performed with R. The paper was written using LaTeX. In order to completely replicate the project first run `data_collect.py`, then `analysis.R` and finally `Schelling.tex`. Note that within data collection and analysis file the code can be run by section to reduce the time required for replicating specific results.
 
 In order to replicate and run the project the following program requirements are necessary:
 

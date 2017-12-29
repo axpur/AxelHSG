@@ -246,6 +246,39 @@ grp_results_plotter <- function(grp_plot_data, cases){
 library(tidyverse)
 library(xtable)
 
+#### Pre-amble (for all cases) ####
+# Creating definitions of variable names for plotting
+ratio_agg_names <- c(
+  `info_seg` = "Information Value",
+  `share_happy` = "Share of Happy Agents",
+  `share_seg` = "Share of Segregated Agents"
+)
+
+type_grp_names <- c(
+  `0` = "Blue",
+  `1` = "Red",
+  `2` = "Pink",
+  `3` = "Lightblue"
+)
+
+th_cases_names <- c(
+  `4` = "Threshold = 4",
+  `5` = "Threshold = 5",
+  `6` = "Threshold = 6"
+)
+
+nb_cases_names <- c(
+  `0.25` = "Neigh. U. = 0.25",
+  `0.5` = "Neigh. U. = 0.5",
+  `0.75` = "Neigh. U. = 0.75"
+)
+
+el_cases_names <- c(
+  `0.5` = "Election U. = 0.5",
+  `1` = "Election U. = 1",
+  `1.5` = "Election U. = 1.5"
+)
+
 #### Baseline model ####
 # Loading data
 data_us <- read.csv("data/out_us.csv", stringsAsFactors = F)
@@ -264,20 +297,6 @@ all_grp_ratios <- bind_rows(list(us_results[[2]], uk_results[[2]], aus_results[[
 # Re-ordering country labels
 all_agg_ratios$cnt <- factor(all_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 all_grp_ratios$cnt <- factor(all_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
-
-# Creating definitions of variable names for plotting
-ratio_agg_names <- c(
-  `info_seg` = "Information Value",
-  `share_happy` = "Share of Happy Agents",
-  `share_seg` = "Share of Segregated Agents"
-)
-
-type_grp_names <- c(
-  `0` = "Blue",
-  `1` = "Red",
-  `2` = "Pink",
-  `3` = "Lightblue"
-)
 
 # Plotting aggregate measures over steps and contrasting country cases
 agg_ratios_plot <- agg_results_plotter(all_agg_ratios, cases = F)
@@ -341,13 +360,6 @@ all_th_grp_ratios <- bind_rows(list(us_th_results[[2]], uk_th_results[[2]], aus_
 all_th_agg_ratios$cnt <- factor(all_th_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 all_th_grp_ratios$cnt <- factor(all_th_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
 
-# Creating definitions of variable names for plotting
-th_cases_names <- c(
-  `4` = "Threshold = 4",
-  `5` = "Threshold = 5",
-  `6` = "Threshold = 6"
-)
-
 # Plotting aggregate measures over steps and contrasting country cases
 th_agg_ratios_plot <- agg_results_plotter(all_th_agg_ratios, cases = T) + 
   ggtitle("Aggregate Ratios with Varying Threshold Utility (Mean of 100 Runs)") + 
@@ -386,13 +398,6 @@ all_nb_grp_ratios <- bind_rows(list(us_nb_results[[2]], uk_nb_results[[2]], aus_
 # Re-ordering country labels
 all_nb_agg_ratios$cnt <- factor(all_nb_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 all_nb_grp_ratios$cnt <- factor(all_nb_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
-
-# Creating definitions of variable names for plotting
-nb_cases_names <- c(
-  `0.25` = "Neigh. U. = 0.25",
-  `0.5` = "Neigh. U. = 0.5",
-  `0.75` = "Neigh. U. = 0.75"
-)
 
 # Plotting aggregate measures over steps and contrasting country cases
 nb_agg_ratios_plot <- agg_results_plotter(all_nb_agg_ratios, cases = T) + 
@@ -433,13 +438,6 @@ all_el_grp_ratios <- bind_rows(list(us_el_results[[2]], uk_el_results[[2]], aus_
 # Re-ordering country labels
 all_el_agg_ratios$cnt <- factor(all_el_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 all_el_grp_ratios$cnt <- factor(all_el_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
-
-# Creating definitions of variable names for plotting
-el_cases_names <- c(
-  `0.5` = "Election U. = 0.5",
-  `1` = "Election U. = 1",
-  `1.5` = "Election U. = 1.5"
-)
 
 # Plotting aggregate measures over steps and contrasting country cases
 el_agg_ratios_plot <- agg_results_plotter(all_el_agg_ratios, cases = T) + 
