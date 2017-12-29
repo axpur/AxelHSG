@@ -1,3 +1,3 @@
-from server import server
+from server_uk import server
 
 server.launch()

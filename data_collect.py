@@ -1,10 +1,10 @@
+import random
+import numpy as np
+import time
+
 from US_elections.model_us import SchellingModel_US
 from UK_elections.model_uk import SchellingModel_UK
 from AUS_elections.model_aus import SchellingModel_AUS
-import random
-import pandas as pd
-import numpy as np
-import time
 
 start_time = time.time()
 random.seed(1234)

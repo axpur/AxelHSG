@@ -259,9 +259,10 @@ aus_results <- complete_calc(data_out = data_aus)
 
 # Combining country cases
 all_agg_ratios <- bind_rows(list(us_results[[1]], uk_results[[1]], aus_results[[1]]))
-all_agg_ratios$cnt <- factor(all_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
-
 all_grp_ratios <- bind_rows(list(us_results[[2]], uk_results[[2]], aus_results[[2]]))
+
+# Re-ordering country labels
+all_agg_ratios$cnt <- factor(all_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 all_grp_ratios$cnt <- factor(all_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
 
 # Creating definitions of variable names for plotting
@@ -303,9 +304,10 @@ aus_results_1000 <- complete_calc(data_out = data_aus_1000)
 
 # Combining country cases
 all_agg_ratios_1000 <- bind_rows(list(us_results_1000[[1]], uk_results_1000[[1]], aus_results_1000[[1]]))
-all_agg_ratios_1000$cnt <- factor(all_agg_ratios_1000$cnt, levels = c("UK", "US", "AUS"))
-
 all_grp_ratios_1000 <- bind_rows(list(us_results_1000[[2]], uk_results_1000[[2]], aus_results_1000[[2]]))
+
+# Re-ordering country labels
+all_agg_ratios_1000$cnt <- factor(all_agg_ratios_1000$cnt, levels = c("UK", "US", "AUS"))
 all_grp_ratios_1000$cnt <- factor(all_grp_ratios_1000$cnt, levels = c("UK", "US", "AUS"))
 
 # Plotting aggregate measures over steps and contrasting country cases with 1000 steps
@@ -333,9 +335,10 @@ aus_th_results <- complete_calc(data_out = data_aus_th)
 
 # Combining country cases
 all_th_agg_ratios <- bind_rows(list(us_th_results[[1]], uk_th_results[[1]], aus_th_results[[1]]))
-all_th_agg_ratios$cnt <- factor(all_th_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
-
 all_th_grp_ratios <- bind_rows(list(us_th_results[[2]], uk_th_results[[2]], aus_th_results[[2]]))
+
+# Re-ordering country labels
+all_th_agg_ratios$cnt <- factor(all_th_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 all_th_grp_ratios$cnt <- factor(all_th_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
 
 # Creating definitions of variable names for plotting
@@ -378,9 +381,10 @@ aus_nb_results <- complete_calc(data_out = data_aus_nb)
 
 # Combining country cases
 all_nb_agg_ratios <- bind_rows(list(us_nb_results[[1]], uk_nb_results[[1]], aus_nb_results[[1]]))
-all_nb_agg_ratios$cnt <- factor(all_nb_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
-
 all_nb_grp_ratios <- bind_rows(list(us_nb_results[[2]], uk_nb_results[[2]], aus_nb_results[[2]]))
+
+# Re-ordering country labels
+all_nb_agg_ratios$cnt <- factor(all_nb_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 all_nb_grp_ratios$cnt <- factor(all_nb_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
 
 # Creating definitions of variable names for plotting
@@ -424,9 +428,10 @@ aus_el_results <- complete_calc(data_out = data_aus_el)
 
 # Combining country cases
 all_el_agg_ratios <- bind_rows(list(us_el_results[[1]], uk_el_results[[1]], aus_el_results[[1]]))
-all_el_agg_ratios$cnt <- factor(all_el_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
-
 all_el_grp_ratios <- bind_rows(list(us_el_results[[2]], uk_el_results[[2]], aus_el_results[[2]]))
+
+# Re-ordering country labels
+all_el_agg_ratios$cnt <- factor(all_el_agg_ratios$cnt, levels = c("UK", "US", "AUS"))
 all_el_grp_ratios$cnt <- factor(all_el_grp_ratios$cnt, levels = c("UK", "US", "AUS"))
 
 # Creating definitions of variable names for plotting

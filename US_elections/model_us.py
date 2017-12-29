@@ -10,7 +10,6 @@ class SchellingAgent(Agent):
     '''
     Schelling segregation agent
     '''
-    # Q: What is the purpose of _init_ exactly
     def __init__(self, pos, model, agent_type):
         '''
          Create a new Schelling agent.
@@ -23,12 +22,7 @@ class SchellingAgent(Agent):
         self.pos = pos
         self.type = agent_type
 
-        # Defining additional variables for manual consistency checks
-        self.utility = 0
-        self.elections_utility = 0
-        self.neighbor_types = []
-
-        # Determine to which location you belong in terms of X
+        # Determine to which 'longitude' an agent belongs to (in terms of X)
         if self.pos[0] >= 22:
             self.x = 2
         elif self.pos[0] >= 11:
@@ -36,18 +30,19 @@ class SchellingAgent(Agent):
         else:
             self.x = 0
 
-        # Determine to which location you belong in terms of Y
-        if self.pos[1] >= 23:
+        # Determine to which 'latitude' an agent belongs to (in terms of Y)
+        if self.pos[1] >= 22:
             self.y = 2
-        elif self.pos[1] >= 12:
+        elif self.pos[1] >= 11:
             self.y = 1
         else:
             self.y = 0
 
-        # Determine the location identifier
+        # Determine to which location an agent belongs to. Location numbering
+        # is from top-left box and is numbered by row
         self.loc = self.y*3+self.x
 
-        # Tracking the number of different types of agents in location
+        # Adding up to the location tally of the type of agents that live in identified location
         if self.type == 0:
             self.model.elections_party0[self.loc] += 1
         elif self.type == 2:
@@ -58,15 +53,13 @@ class SchellingAgent(Agent):
             self.model.elections_party1[self.loc] += 1
 
     def step(self):
-        # Reseting the types of neighbor tracker
-        self.neighbor_types = []
         similar = 0  # How many agents around me are similar to me. Done for each agent at every step.
-        self.election_utility = 0  # Resetting election utility
         for neighbor in self.model.grid.neighbor_iter(self.pos):
-            self.neighbor_types.append(neighbor.type)
+            # If statement to check if neighbor is the same type
             if neighbor.type == self.type:
                 similar += 1
-            # If conditions to check if other type of agents are 'similar' and hence would add additional utility
+
+            # If statements to check if neighbor types of agents are 'similar'
             if (self.type == 1 and neighbor.type == 2) or \
                (self.type == 2 and neighbor.type == 1) or \
                (self.type == 0 and neighbor.type == 3) or \
@@ -79,19 +72,16 @@ class SchellingAgent(Agent):
            (self.type == 0 and self.model.elections[self.loc] == 0) or \
            (self.type == 3 and self.model.elections[self.loc] == 0):
             similar = similar + self.model.gamma
-            self.election_utility += self.model.gamma
 
-        # Storing utility counter
-        self.utility = similar
         # If unhappy, move:
         if similar < self.model.homophily:
             # Simplifies location adjustment
             self.model.grid.move_to_empty(self)  # If not happy, move to empty cell.
         else:
-            # Keep track of happy people
+            # Keep track of happy agents
             self.model.happy += 1
 
-        # Determine to which location you belong in terms of X
+        # Determine to which 'longitude' an agent belongs to (in terms of X)
         if self.pos[0] >= 22:
             self.x = 2
         elif self.pos[0] >= 11:
@@ -99,7 +89,7 @@ class SchellingAgent(Agent):
         else:
             self.x = 0
 
-        # Determine to which location you belong in terms of Y
+        # Determine to which 'latitude' an agent belongs to (in terms of Y)
         if self.pos[1] >= 22:
             self.y = 2
         elif self.pos[1] >= 11:
@@ -107,10 +97,11 @@ class SchellingAgent(Agent):
         else:
             self.y = 0
 
-        # Determine the location identifer
+        # Determine to which location an agent belongs to. Location numbering
+        # is from top-left box and is numbered by row
         self.loc = self.y*3+self.x
 
-        # Tracking the number of different types of agents in location
+        # Adding up to the location tally of the type of agents that live in identified location
         if self.type == 0:
             self.model.elections_party0[self.loc] += 1
         elif self.type == 2:
@@ -130,8 +121,8 @@ class SchellingModel_US(Model):
         '''
         '''
         # Setting up the Model
-        self.height = height
-        self.width = width
+        self.height = height  # height of the grid
+        self.width = width  # width of the grid
         self.density = density  # percentage (empty houses)
         self.type_1 = type_1  # percentage of type 1 agents (red)
         self.type_2 = type_2  # percentage of type 2 agents (pink)
@@ -139,6 +130,7 @@ class SchellingModel_US(Model):
         self.homophily = homophily  # number of similar minded person that you want around you
         self.gamma = gamma  # weight on the election outcome in utility function
         self.alpha = alpha  # utility gained from having 'similar' agents
+
         # Setting up the AGM simulation
         self.schedule = RandomActivation(self)
 
@@ -146,12 +138,12 @@ class SchellingModel_US(Model):
         # seems to be related to how we treat edges, but not sure
         self.grid = SingleGrid(height, width, torus=True)
 
-        # Setting the number of happy people to zero
+        # Starting value of happy people is zero
         self.happy = 0
 
         self.running = True
 
-        # Setting a variable to store total number of different types of agents
+        # Definining a variable to store total number of different types of agents
         self.type0 = 0
         self.type1 = 0
         self.type2 = 0
@@ -207,12 +199,12 @@ class SchellingModel_US(Model):
             # Tracking total number of agents in a location
             self.elections_type_total[i] = self.elections_party0[i] + self.elections_party1[i] + self.elections_center_1[i] + self.elections_center_0[i]
 
-            # Election condition to randomize if the results are equal
+            # Election are randomized if the votes are equal
             if self.elections_party1[i] + self.elections_center_1[i] == self.elections_party0[i] + self.elections_center_0[i]:
                 if random.random() > 0.5:
                     self.elections[i] += 1
 
-            # Election condition to determine which party wins
+            # Condition to determine which party wins
             if self.elections_party1[i] + self.elections_center_1[i] > self.elections_party0[i] + self.elections_center_0[i]:
                 self.elections[i] += 1
 
@@ -229,20 +221,21 @@ class SchellingModel_US(Model):
             "location_3": lambda m: m.elections_center_1,
             "location_total": lambda m: m.elections_type_total,
             "elections": lambda m: m.elections,
-            "seg_agents": lambda m: m.segregated_agents},
-            {"x": lambda a: a.pos[0], "y": lambda a: a.pos[1],
-            "util": lambda a: a.utility, "loc": lambda a: a.loc,
-            "type": lambda a: a.type, "neighbor_types": lambda a: a.neighbor_types,
-            "elec_util": lambda a: a.election_utility})
+            "seg_agents": lambda m: m.segregated_agents})
 
+        # Defining starting value of segregated agents as zero
         self.segregated_agents = 0
+
+        # For all agents check whether they are in an area where around them only agents of the same type live
         for agent in self.schedule.agents:
             segregated = True
             for neighbor in self.grid.neighbor_iter(agent.pos):
+                # Condition to check whether at least one neighbor is not the same
                 if neighbor.type != agent.type:
                     segregated = False
                     break
             if segregated:
+                # Add to the tally of segregated agents
                 self.segregated_agents += 1
 
     def step(self):
@@ -258,7 +251,7 @@ class SchellingModel_US(Model):
         self.elections_type_total = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.happy = 0  # Reset counter of happy agents
         self.schedule.step()
-        # Reseting location results
+        # Reseting election results
         self.elections = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         # Re-running elections after agents have moved
@@ -266,28 +259,33 @@ class SchellingModel_US(Model):
             # Tracking total number of agents in a location
             self.elections_type_total[i] = self.elections_party0[i] + self.elections_party1[i] + self.elections_center_1[i] + self.elections_center_0[i]
 
-            # Election condition to randomize if the results are equal
+            # Election are randomized if the votes are equal
             if self.elections_party1[i] + self.elections_center_1[i] == self.elections_party0[i] + self.elections_center_0[i]:
                 if random.random() > 0.5:
                     self.elections[i] += 1
 
-            # Election condition to determine which party wins
+            # Condition to determine which party wins
             if self.elections_party1[i] + self.elections_center_1[i] > self.elections_party0[i] + self.elections_center_0[i]:
                 self.elections[i] += 1
 
-        # Calculating number of segregated agents
+        # Resetting the number of segregated agents to zero
         self.segregated_agents = 0
+
+        # For all agents check whether they are in an area where around them only agents of the same type live
         for agent in self.schedule.agents:
             segregated = True
             for neighbor in self.grid.neighbor_iter(agent.pos):
+                # Condition to check whether at least one neighbor is not the same
                 if neighbor.type != agent.type:
                     segregated = False
                     break
             if segregated:
+                # Add to the tally of segregated agents
                 self.segregated_agents += 1
 
         # Storing relevant data
         self.datacollector.collect(self)
 
+        # Simulation stops if all agents are happy
         if self.happy == self.schedule.get_agent_count():
             self.running = False
