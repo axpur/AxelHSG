@@ -211,7 +211,7 @@ model_aus_all_nb.to_csv('data/out_aus_nb.csv')  # Save the file
 print("Total time generating differences in outcomes by varying neighborhood utility: %s" % (time.time() - start_time))
 
 start_time = time.time()
-random.seed(142340)
+random.seed(531249)
 # Running multiple times and storing as a csv file
 for i in range(10):
     # Defining all models
