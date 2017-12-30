@@ -154,7 +154,7 @@ complete_calc <- function(data_out){
     mutate(change_loc = ifelse(elect == lag(elect), 0, 1))
   
   # Returning a list of relevant measures that were calculated
-  return(list(data_agg_ratios, data_grp_ratios, data_elec_calc)) 
+  return(list(data_agg_ratios, data_grp_ratios, data_elec_ratios)) 
 }
 
 agg_results_plotter <- function(agg_plot_data, cases){
@@ -242,9 +242,8 @@ grp_results_plotter <- function(grp_plot_data, cases){
 }
 
 #### Libraries ####
-# install.packages(c("tidyverse", "xtable"))
+# install.packages(c("tidyverse"))
 library(tidyverse)
-library(xtable)
 
 #### Pre-amble (for all cases) ####
 # Creating definitions of variable names for plotting
@@ -460,157 +459,11 @@ el_grp_ratios_plot
 dev.off()
 
 #### Other analysis ####
-
-## Baseline case tables
-# Aggregate ratios
-all_agg_ratios_table <- all_agg_ratios %>%
-  ungroup() %>%
-  filter(steps == 25 | steps == 50| steps == 75 | steps == 100) %>%
-  group_by(steps, cnt) %>%
-  summarize(mean_happy = round(mean(share_happy),4),
-            mean_seg = round(mean(share_seg),4),
-            mean_info = round(mean(info_seg), 4)) %>%
-  ungroup() %>%
-  mutate(steps = sprintf("%1.f", steps),
-         mean_happy = sprintf("%1.2f%%", 100*mean_happy),
-         mean_seg = sprintf("%1.2f%%", 100*mean_seg),
-         mean_info = sprintf("%1.4f", mean_info))
-
-colnames(all_agg_ratios_table) <- c("Steps", "Country", "Happy", "Segregated", "Information Value")
-
-print(xtable(all_agg_ratios_table, type = "latex"), include.rownames = F, file = "Tables/all_agg_ratios.tex")
-
-# Group-based measures
-all_grp_ratios_table <- all_grp_ratios %>%
-  ungroup() %>%
-  filter(steps == 25 | steps == 50| steps == 75 | steps == 100) %>%
-  group_by(steps, cnt, type) %>%
-  summarize(grp_info = round(mean(grp_info),4)) %>%
-  ungroup() %>%
-  mutate(steps = sprintf("%1.f", steps),
-         grp_info = sprintf("%1.4f%%", grp_info))
-
-colnames(all_grp_ratios_table) <- c("Steps", "Country", "Type", "Group Information Value")
-
-print(xtable(all_grp_ratios_table, type = "latex"), include.rownames = F, file = "Tables/all_grp_ratios.tex")
-
-## Baseline case tables
-# Aggregate ratios
-th_agg_ratios_table <- all_th_agg_ratios %>%
-  ungroup() %>%
-  filter(steps == 25 | steps == 50| steps == 75 | steps == 100) %>%
-  group_by(steps, cnt, cases) %>%
-  summarize(mean_happy = round(mean(share_happy),4),
-            mean_seg = round(mean(share_seg),4),
-            mean_info = round(mean(info_seg), 4)) %>%
-  ungroup() %>%
-  mutate(steps = sprintf("%1.f", steps),
-         mean_happy = sprintf("%1.2f%%", 100*mean_happy),
-         mean_seg = sprintf("%1.2f%%", 100*mean_seg),
-         mean_info = sprintf("%1.4f", mean_info),
-         cases = paste0("Case ", cases))
-
-colnames(th_agg_ratios_table) <- c("Steps", "Country", "Threshold Cases", "Happy", "Segregated", "Information Value")
-
-print(xtable(th_agg_ratios_table, type = "latex"), include.rownames = F, file = "Tables/th_agg_ratios.tex")
-
-# Group-based measures
-th_grp_ratios_table <- all_th_grp_ratios %>%
-  ungroup() %>%
-  filter(steps == 25 | steps == 50| steps == 75 | steps == 100) %>%
-  group_by(steps, cnt, type, cases) %>%
-  summarize(grp_info = round(mean(grp_info),4)) %>%
-  ungroup() %>%
-  mutate(steps = sprintf("%1.f", steps),
-         grp_info = sprintf("%1.4f", grp_info),
-         cases = paste0("Case: ", cases)) %>%
-  spread(key = "cases", value = "grp_info")
-
-colnames(th_grp_ratios_table) <- c("Steps", "Country", "Type", paste0("Group Information Value (Threshold: ", 4:6, ")"))
-
-print(xtable(th_grp_ratios_table, type = "latex"), include.rownames = F, file = "Tables/th_grp_ratios.tex")
-
-## Changing neighborhood utility tables
-# Aggregate ratios
-nb_agg_ratios_table <- all_nb_agg_ratios %>%
-  ungroup() %>%
-  filter(steps == 25 | steps == 50| steps == 75 | steps == 100) %>%
-  group_by(steps, cnt, cases) %>%
-  summarize(mean_happy = round(mean(share_happy),4),
-            mean_seg = round(mean(share_seg),4),
-            mean_info = round(mean(info_seg), 4)) %>%
-  ungroup() %>%
-  mutate(steps = sprintf("%1.f", steps),
-         mean_happy = sprintf("%1.2f%%", 100*mean_happy),
-         mean_seg = sprintf("%1.2f%%", 100*mean_seg),
-         mean_info = sprintf("%1.4f", mean_info),
-         cases = paste0("Case: ", cases))
-
-colnames(nb_agg_ratios_table) <- c("Steps", "Country", "Neighborhood Utility", "Happy", "Segregated", "Information Value")
-
-print(xtable(nb_agg_ratios_table, type = "latex"), include.rownames = F, file = "Tables/nb_agg_ratios.tex")
-
-# Group-based measures
-nb_grp_ratios_table <- all_nb_grp_ratios %>%
-  ungroup() %>%
-  filter(steps == 25 | steps == 50| steps == 75 | steps == 100) %>%
-  group_by(steps, cnt, type, cases) %>%
-  summarize(grp_info = round(mean(grp_info),4)) %>%
-  ungroup() %>%
-  mutate(steps = sprintf("%1.f", steps),
-         grp_info = sprintf("%1.4f", grp_info),
-         cases = paste0("Case: ", cases)) %>%
-  spread(key = "cases", value = "grp_info")
-
-colnames(nb_grp_ratios_table) <- c("Steps", "Country", "Type", paste0("Group Information Value (Neighborhood Utility: ", c(0.25, 0.5, 0.75), ")"))
-
-print(xtable(nb_grp_ratios_table, type = "latex"), include.rownames = F, file = "Tables/nb_grp_ratios.tex")
-
-## Chaging election utility
-# Aggregate ratios
-el_agg_ratios_table <- all_el_agg_ratios %>%
-  ungroup() %>%
-  filter(steps == 25 | steps == 50| steps == 75 | steps == 100) %>%
-  group_by(steps, cnt, cases) %>%
-  summarize(mean_happy = round(mean(share_happy),4),
-            mean_seg = round(mean(share_seg),4),
-            mean_info = round(mean(info_seg), 4)) %>%
-  ungroup() %>%
-  mutate(steps = sprintf("%1.f", steps),
-         mean_happy = sprintf("%1.2f%%", 100*mean_happy),
-         mean_seg = sprintf("%1.2f%%", 100*mean_seg),
-         mean_info = sprintf("%1.4f", mean_info),
-         cases = paste0("Case: ", cases))
-
-colnames(el_agg_ratios_table) <- c("Steps", "Country", "Election Utility", "Happy", "Segregated", "Information Value")
-
-print(xtable(el_agg_ratios_table, type = "latex"), include.rownames = F, file = "Tables/el_agg_ratios.tex")
-
-# Group-based measures
-el_grp_ratios_table <- all_el_grp_ratios %>%
-  ungroup() %>%
-  filter(steps == 25 | steps == 50| steps == 75 | steps == 100) %>%
-  group_by(steps, cnt, type, cases) %>%
-  summarize(grp_info = round(mean(grp_info),4)) %>%
-  ungroup() %>%
-  mutate(steps = sprintf("%1.f", steps),
-         grp_info = sprintf("%1.4f", grp_info),
-         cases = paste0("Case: ", cases)) %>%
-  spread(key = "cases", value = "grp_info")
-
-colnames(el_grp_ratios_table) <- c("Steps", "Country", "Type", paste0("Group Information Value (Election Utility: ", c(0.5, 1, 1.5), ")"))
-
-print(xtable(el_grp_ratios_table, type = "latex"), include.rownames = F, file = "Tables/el_grp_ratios.tex")
-
-step_final <- Sys.time()
-print(step_final - start_time)
-
-### Box plots for visualizing variation in outcomes
-# Aggregate measures
+### Box plots for visualizing variation in aggregate measures after 100 steps
 box_plot_agg <- all_agg_ratios %>%
   ungroup() %>%
   group_by(run, cnt) %>%
-  filter(steps == 100) %>%
+  filter(steps == 100) %>% # Only focus on the last step of the simulation
   gather(key = "Ratios", value = "Value", info_seg:share_seg) %>%
   ggplot(aes(x = cnt, y = Value, fill = cnt)) + geom_boxplot(alpha = 0.6) + theme_bw() + 
     ggtitle("Variation in Segregation Measures (After 100 Steps)") + scale_y_continuous(limits = c(0, 1)) + 
@@ -621,67 +474,25 @@ pdf("Plots/box_plot_agg.pdf")
 box_plot_agg
 dev.off()
 
-# Chnges by Utility Threshold
-box_plot_th <- all_th_agg_ratios %>%
-  ungroup() %>%
-  group_by(run, cnt) %>%
-  filter(steps == 100) %>%
-  gather(key = "Ratios", value = "Value", info_seg:share_seg) %>%
-  ggplot(aes(x = as.factor(cases), y = Value, fill = as.factor(cnt))) + geom_boxplot(alpha = 0.6) +
-  ggtitle("Variation in Segregation Measures (After 100 Steps)") + scale_y_continuous(limits = c(0, 1)) + 
-  xlab("Varying Utility Threshold") + scale_fill_brewer(palette = "Set1") + 
-  theme_bw() + theme(legend.position = "bottom", legend.title= element_blank()) +
-  facet_grid(cnt~Ratios, labeller = labeller(Ratios = as_labeller(ratio_agg_names)))
-
-pdf("Plots/box_plot_th.pdf")
-box_plot_th
-dev.off()
-
-# Chnges by Election Utility
-box_plot_el <- all_el_agg_ratios %>%
-  ungroup() %>%
-  group_by(run, cnt) %>%
-  filter(steps == 100) %>%
-  gather(key = "Ratios", value = "Value", info_seg:share_seg) %>%
-  ggplot(aes(x = as.factor(cases), y = Value, fill = as.factor(cnt))) + geom_boxplot(alpha = 0.6) +
-  ggtitle("Variation in Segregation Measures (After 100 Steps)") + scale_y_continuous(limits = c(0, 1)) + 
-  xlab("Varying Election Utility") + scale_fill_brewer(palette = "Set1") + 
-  theme_bw() + theme(legend.position = "bottom", legend.title= element_blank()) +
-  facet_grid(cnt~Ratios, labeller = labeller(Ratios = as_labeller(ratio_agg_names)))
-
-pdf("Plots/box_plot_el.pdf")
-box_plot_el
-dev.off()
-
-
-# Chnges by Neighnorhood Utility
-box_plot_nb <- all_nb_agg_ratios %>%
-  ungroup() %>%
-  group_by(run, cnt) %>%
-  filter(steps == 100) %>%
-  gather(key = "Ratios", value = "Value", info_seg:share_seg) %>%
-  ggplot(aes(x = as.factor(cases), y = Value, fill = as.factor(cnt))) + geom_boxplot(alpha = 0.6) +
-  ggtitle("Variation in Segregation Measures (After 100 Steps)") + scale_y_continuous(limits = c(0, 1)) + 
-  xlab("Varying Neighborhood Threshold") + scale_fill_brewer(palette = "Set1") + 
-  theme_bw() + theme(legend.position = "bottom", legend.title= element_blank()) +
-  facet_grid(cnt~Ratios, labeller = labeller(Ratios = as_labeller(ratio_agg_names)))
-
-pdf("Plots/box_plot_nb.pdf")
-box_plot_nb
-dev.off()
-
 ## Election changes calculations
+# Election outcomes are stored in the 3rd element of the list
 us_elec_ratios <- us_results[[3]]
 uk_elec_ratios <- uk_results[[3]]
 aus_elec_ratios <- aus_results[[3]]
 
+# Combining all country cases
 all_elec_ratios <- bind_rows(list(us_elec_ratios, uk_elec_ratios, aus_elec_ratios))
+
+# Re-labeling election cases
 all_elec_ratios$cnt <- factor(all_elec_ratios$cnt, levels = c("UK", "US", "AUS"))
+
+# Calculating mean change in location over runs
 all_elec_ratios_adj <- all_elec_ratios %>%
   filter(!is.na(change_loc)) %>%
   group_by(steps, cnt) %>%
   summarize(elec_ratio = mean(change_loc))
 
+# Plotting fraction of locations that have changing election outcome over-time
 election_plot <- ggplot(all_elec_ratios_adj, aes(x = steps, y = elec_ratio, color = cnt)) + geom_line(size = 1) +
   scale_color_brewer(palette = "Set1") + xlab("Steps") + ylab("Fraction of Locations") +
   ggtitle("Fraction of Locations That Have a Changing \nElection Outcome (Mean of 100 Runs)") +
