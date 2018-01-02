@@ -8,8 +8,11 @@
 # 2) Cleaning data, 3) Combining all country cases together,
 # 4) Plotting and storing output for reporting. Given this structure
 # replication is possible by scenario instead of replicating all plots
-# at once. Note that the code relies on 3 author defined functions, which
-# contain descriptions within them.
+# at once. In order to replicate the results first run 'Setting working directory',
+# 'Functions', 'Libraries' and 'Pre-amble' sections. Afterwards each case specific
+# section can be run separetly. Note that 'Other analysis' section requires first 
+# to run the 'Baseline model' section. Alo, note that the code relies on 3 author 
+# defined functions, which contain descriptions within them.
 #
 # NOTE: Remember to re-define the working directory, of the R file. The 
 # directory should contain the R file and a 'Data' folder with all .csv

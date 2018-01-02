@@ -6,9 +6,9 @@ from US_elections.model_us import SchellingModel_US
 from UK_elections.model_uk import SchellingModel_UK
 from AUS_elections.model_aus import SchellingModel_AUS
 
+# PART1: Baseline simulation
 start_time = time.time()
 random.seed(1234)
-
 # Running multiple times and storing as a csv file
 for i in range(100):
     # Defining all models
@@ -57,6 +57,7 @@ model_uk_all.to_csv('data/out_uk.csv')  # Save the file
 model_aus_all.to_csv('data/out_aus.csv')  # Save the file
 print("Total time generating baseline case: %s" % (time.time() - start_time))
 
+# PART2: Simulation with varying utility threshold
 start_time = time.time()
 random.seed(12344)
 for j in range(4, 7):
@@ -108,6 +109,7 @@ model_uk_all_th.to_csv('data/out_uk_th.csv')  # Save the file
 model_aus_all_th.to_csv('data/out_aus_th.csv')  # Save the file
 print("Total time generating differences in outcomes by varying threshold utility: %s" % (time.time() - start_time))
 
+# PART3: Simulation with varying election utility
 start_time = time.time()
 random.seed(56789)
 for j in [0.5, 1, 1.5]:
@@ -159,6 +161,7 @@ model_uk_all_el.to_csv('data/out_uk_el.csv')  # Save the file
 model_aus_all_el.to_csv('data/out_aus_el.csv')  # Save the file
 print("Total time generating differences in outcomes by varying election utility: %s" % (time.time() - start_time))
 
+# PART4: Simulation with varying neighborhood utility
 start_time = time.time()
 random.seed(53202)
 for j in [0.25, 0.5, 0.75]:
@@ -210,6 +213,7 @@ model_uk_all_nb.to_csv('data/out_uk_nb.csv')  # Save the file
 model_aus_all_nb.to_csv('data/out_aus_nb.csv')  # Save the file
 print("Total time generating differences in outcomes by varying neighborhood utility: %s" % (time.time() - start_time))
 
+# PART5: Baseline simulation with 1000 steps
 start_time = time.time()
 random.seed(531249)
 # Running multiple times and storing as a csv file
