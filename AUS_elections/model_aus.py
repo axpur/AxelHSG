@@ -306,7 +306,7 @@ class SchellingModel_AUS(Model):
             self.elections_type_total[i] = self.elections_party0[i] + self.elections_party1[i] + self.elections_center[i]
             # In order to prevent division by zero, add 1 to locations which have no agents in them
             if self.elections_type_total[i] == 0:
-                self.electios_type_total[i] += 1
+                self.elections_type_total[i] += 1
             # First stage
             # Check if one party has more than 50% of the votes
             if (self.elections_party1[i]/self.elections_type_total[i]) >= 0.5:
