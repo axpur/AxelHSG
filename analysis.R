@@ -19,7 +19,7 @@
 # files.
 
 #### Setting workng directory ####
-setwd("C:\\Users\\gedmi\\Desktop\\SE Project\\Further\\New\\AxelHSG")
+setwd("C:\\Users\\gedmi\\Desktop\\AxelHSG")
 
 #### Functions ####
 complete_calc <- function(data_out){
@@ -30,14 +30,13 @@ complete_calc <- function(data_out){
   
   # Note on the structure of the data. While the python data output is such that a single observation
   # (row) corresponds to a single step in the simulation, for analysis each observation (row) should 
-  # in adition to corresponding to a step should also be differentiated by agent type that we are 
-  # looking at and location specific measures. 
+  # also be differentiated by agent type that we are looking at and location specific measures. 
   
-  # The final output of the function is a list of 3 tables which calculate relevant measures.
+  # The final output of the function is a list of 3 tables which contain relevant measures.
   # For this reason function output that is referred to [[1]] returns aggregated group segregation measures
   # [[2]] returns group specific segregation measures and [[3]] returns election specific outcomes
   
-  # Renaming missing column name and adjusting the value
+  # Renaming missing column name and adjusting the step ID
   colnames(data_out)[1] <- "steps"
   data_out$steps <- data_out$steps+1
   
@@ -79,7 +78,7 @@ complete_calc <- function(data_out){
   data_out[, colnames_grp2] <- matrix(as.numeric(unlist(strsplit(data_out[, "location_2"], ","))), ncol = 9, byrow = T)
   data_out[, colnames_grp3] <- matrix(as.numeric(unlist(strsplit(data_out[, "location_3"], ","))), ncol = 9, byrow = T)
   
-  # Maintaining values for A: rename column instead of creating additional varaibles
+  # Maintaining values
   data_out[, "group_total0"] <- data_out[,"total_0"]
   data_out[, "group_total1"] <- data_out[,"total_1"]
   data_out[, "group_total2"] <- data_out[,"total_2"]
@@ -89,7 +88,8 @@ complete_calc <- function(data_out){
   data_out <- data_out[, -which(names(data_out) %in% c("elections", "location_total", "location_0", "location_1", "location_2", "location_3",
                                                        "total_0", "total_1", "total_2", "total_3"))]
   
-  # Restructuring of the data
+  ## Aggregate Segregation
+  # Restructuring of the data. This requires re-shaping data from wide-to-long and back multiple times
   data_store <- data_out %>% 
     gather(key = "agg_types", value = "num", c(colnames_elect, colnames_total, colnames_grp0, colnames_grp1, colnames_grp2, colnames_grp3)) %>%
     mutate(loc = as.factor(substr(agg_types, start = nchar(agg_types), stop = nchar(agg_types))),
@@ -102,7 +102,7 @@ complete_calc <- function(data_out){
     spread(key = "types", value = "num") %>% 
     arrange(run, steps, type, loc)
   
-  # Calculating intermediate values for aggregate segregation measures. ADD: refer to the page for the formula
+  # Calculating intermediate values for aggregate segregation measures. Refer to the paper for formulas of the values
   data_agg_calc <- data_store %>%
     group_by(run, steps, loc, cases) %>%
     mutate(total = sum(group_total),
@@ -114,14 +114,20 @@ complete_calc <- function(data_out){
            share_seg = seg_agents/total) %>%
     ungroup()
   
-  # Aggregating segregation measures for all groups ADD: refer to the page for the formula
+  # Aggregating segregation measures for all groups. Refer to the paper for the fomulas of the values
   data_agg_ratios <- data_agg_calc %>%
     group_by(run, steps, cnt, cases) %>%
     summarize(info_seg = sum((loc_total/(total*e))*pi_jm*log(pi_jm_log/pi_m)),
               share_happy = mean(share_happy),
               share_seg = mean(share_seg))
   
-  # Calculating intermediate values for group segregation measures ADD: refer to the page for the formula
+  ## Group Segregation Measures
+  # Group segregation measures are calculated the same way as aggregate measures except 
+  # from the point of view of each group there are two groups: agents that are the same
+  # type as me and others. Hence the information value here is calculated as if there 
+  # were two groups.
+  
+  # Calculating intermediate values for group segregation measures.
   data_grp_calc <- data_store %>%
     group_by(run, steps, loc, cases) %>%
     mutate(total = sum(group_total),
@@ -139,22 +145,25 @@ complete_calc <- function(data_out){
            share_seg = seg_agents/total) %>%
     ungroup()
   
-  # Calculating group specific segregation measure ADD: refer to the page for the formula
+  # Calculating group specific segregation measure.
   data_grp_ratios <- data_grp_calc %>%
     group_by(run, type, steps, cnt, cases) %>%
     summarize(grp_info = sum((loc_total/(total*e_grp))*pi_jm*log(pi_jm_log/pi_m) + 
                                (loc_total/(total*e_grp))*pi_other_j*log(pi_other_j_log/pi_other)))
   
+  ## Election results
+  # Selecting relevant variables for election result estimation
   data_elec_calc <- data_store %>%
     select(run, steps, loc, elect, cnt)
   
   # Removing duplicate cases such that a single observation for each location exists for each step.
   data_elec_calc <- data_elec_calc[!duplicated(data_elec_calc),]
   
+  # Determining whether locations have changing election outcome
   data_elec_ratios <- data_elec_calc %>%
     arrange(run, loc, steps) %>%
     group_by(run, loc) %>%
-    mutate(change_loc = ifelse(elect == lag(elect), 0, 1))
+    mutate(change_loc = ifelse(elect == lag(elect), 0, 1)) # 1 if election result last period is not equal to current result
   
   # Returning a list of relevant measures that were calculated
   return(list(data_agg_ratios, data_grp_ratios, data_elec_ratios)) 
@@ -245,7 +254,7 @@ grp_results_plotter <- function(grp_plot_data, cases){
 }
 
 #### Libraries ####
-# install.packages(c("tidyverse"))
+install.packages("tidyverse")
 library(tidyverse)
 
 #### Pre-amble (for all cases) ####
@@ -467,7 +476,7 @@ box_plot_agg <- all_agg_ratios %>%
   ungroup() %>%
   group_by(run, cnt) %>%
   filter(steps == 100) %>% # Only focus on the last step of the simulation
-  gather(key = "Ratios", value = "Value", info_seg:share_seg) %>%
+  gather(key = "Ratios", value = "Value", info_seg:share_seg) %>% # Reshaping the data for plotting
   ggplot(aes(x = cnt, y = Value, fill = cnt)) + geom_boxplot(alpha = 0.6) + theme_bw() + 
     ggtitle("Variation in Segregation Measures (After 100 Steps)") + scale_y_continuous(limits = c(0, 1)) + 
     xlab("Country") + facet_grid(~Ratios, labeller = labeller(Ratios = as_labeller(ratio_agg_names))) + 
